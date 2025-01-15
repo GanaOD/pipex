@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 16:57:41 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:59:02 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,21 +43,22 @@ typedef struct s_pipex
 
 
 /* Error handling and cleanup functions (utils.c) - utility level */
-void	exit_error(char *msg)
-void	cleanup_command(t_command *cmd)
-int		error_handler(char *msg)
+void	ft_free_array(char **arr);
+void	exit_error(char *msg);
+void	cleanup_command(t_command *cmd);
+int		error_handler(char *msg);
 
 
 // Error-handling: system call wrappers (utils_system_calls.c)
-int 	safe_close(int fd)
-pid_t	safe_fork(void)
-int 	safe_open(const char *path, int flags, mode_t mode)
-int		safe_pipe(int pipefd[2])
-pid_t	safe_waitpid(pid_t pid, int *status, int options)
+int 	safe_close(int fd);
+pid_t	safe_fork(void);
+int 	safe_open(const char *path, int flags, mode_t mode);
+int		safe_pipe(int pipefd[2]);
+pid_t	safe_waitpid(pid_t pid, int *status, int options);
 
 
 // Command execution logic (execute.c)
-void execute_command(t_command *cmd, char **envp)
+void execute_command(t_command *cmd, char **envp);
 
 
 // Command/argument parsing & path resolution (parse.c)
@@ -68,10 +69,10 @@ char	*find_command_path(char *cmd, char **envp);
 
 
 /* Main program flow (pipex.c) */
-void 	cleanup_pipex(t_pipex *pipex)
-void 	handle_child(t_pipex *pipex)
-void 	handle_parent(t_pipex *pipex)
-void    init_pipex(t_pipex *pipex, char **argv, char **envp)
+void 	cleanup_pipex(t_pipex *pipex);
+void 	handle_child(t_pipex *pipex);
+void 	handle_parent(t_pipex *pipex);
+void    init_pipex(t_pipex *pipex, char **argv, char **envp);
 
 
 #endif

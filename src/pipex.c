@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 16:43:02 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/15 18:07:22 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void cleanup_pipex(t_pipex *pipex)
 void handle_child(t_pipex *pipex)
 {
 	// Open input file
-	pipex->infile = safe_open(pipex->argv[1], O_RDONLY);
+	pipex->infile = safe_open(pipex->argv[1], O_RDONLY, 0644);
 	if (pipex->infile == -1)
 		exit_error("Input file error");
 
@@ -106,46 +106,69 @@ void    init_pipex(t_pipex *pipex, char **argv, char **envp)
 	// Store environment variables
 	pipex->envp = envp;
 
+
+
 	// Initialize first command
+
 	pipex->cmd1.raw_cmd = argv[2];
 	// "Store the address of the 3rd command line argument in the raw_cmd pointer
 	// which is inside the cmd1 struct, which is inside the struct that pipex points to"
+
 	pipex->cmd1.args = NULL;
 	// "Set the args pointer (which is inside cmd1 struct, inside the pipex struct) to NULL"
+
 	pipex->cmd1.path = NULL;
 	// "Set the path pointer (which is inside cmd1 struct, inside the pipex struct) to NULL"
+
 
 	// Initialize second command
 	pipex->cmd2.raw_cmd = argv[3];
 	pipex->cmd2.args = NULL;
 	pipex->cmd2.path = NULL;
+
+
+	pipex->argv = argv;
 }
 
 int main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
+	printf("Debug: Starting program\n");
 
 	if (argc != 5)
 		return (error_handler("Invalid arguments"));
 
+	printf("Debug: Initializing pipex\n");
 	init_pipex(&pipex, argv, envp);
+	printf("Debug: Initialization complete\n");
 
+	printf("Debug: Creating pipe\n");
 	if (safe_pipe(pipex.pipe) == -1)
 		return (error_handler("Pipe failed"));
+	printf("Debug: Pipe created successfully\n");
 
+	printf("Debug: Forking process\n");
 	pipex.pid = safe_fork();
 	// program flow error handling
 	if (pipex.pid == -1)
 		return (error_handler("Fork failed"));
 
+	printf("Debug: Fork successful, pid: %d\n", pipex.pid);
+
 	if (pipex.pid == 0)
+	{
+		printf("Debug: Child process starting\n");
 		handle_child(&pipex);
 		// If successful, this process becomes cmd1 entirely
+		printf("Debug: Child process complete\n"); // This likely won't print if execve succeeds
+	}
 	else
 	{
+		printf("Debug: Parent process waiting for child\n");
 		if (safe_waitpid(pipex.pid, NULL, 0) == -1)
 			return (error_handler("Waitpid failed"));
 		// prototype: waitpid(childpid, &status, 0) : Suspends execution until child process terminates
+		printf("Debug: Child process finished, parent continuing\n");
 
 		handle_parent(&pipex);
 	}

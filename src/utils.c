@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:05:16 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 16:58:03 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/15 17:58:24 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,19 @@
 
 #include "pipex.h"
 
-void	exit_error(char *msg)
+void	ft_free_array(char **arr)
 {
-	if (msg)
-		perror(msg);
-	exit(EXIT_FAILURE);
+	int i;
+
+	i = 0;
+	if (!arr)
+		return;
+	while (arr[i])
+	{
+		free(arr[i]);
+		i++;
+	}
+	free(arr);
 }
 
 // freeing memory malloced by ft_split
@@ -58,4 +66,11 @@ int	error_handler(char *msg)
 	ft_putstr_fd("Error: ", 2);
 	ft_putendl_fd(msg, 2);
 	return (1);
+}
+
+void	exit_error(char *msg)
+{
+	if (msg)
+		perror(msg);
+	exit(EXIT_FAILURE);
 }

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   command_parse.c                                    :+:      :+:    :+:   */
+/*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 12:28:26 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/15 16:57:27 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,12 +23,12 @@
 */
 int init_command(t_command *cmd, char *raw_cmd)
 {
-    if (!raw_cmd)
-        return (0);
-    cmd->raw_cmd = raw_cmd;
-    cmd->args = NULL;
-    cmd->path = NULL;
-    return (1);
+	if (!raw_cmd)
+		return (0);
+	cmd->raw_cmd = raw_cmd;
+	cmd->args = NULL;
+	cmd->path = NULL;
+	return (1);
 }
 
 /*
@@ -59,44 +59,28 @@ int parse_command(t_command *cmd, char **envp)
 }
 
 /*
-** Clean up command structure
-** Frees all allocated memory
-*/
-void cleanup_command(t_command *cmd)
-{
-    if (cmd->args)
-        ft_free_array(cmd->args);
-    if (cmd->path)
-        free(cmd->path);
-    cmd->args = NULL;
-    cmd->path = NULL;
-    cmd->raw_cmd = NULL;  // Don't free as it points to argv
-}
-
-/*
 ** Parse both commands in pipex structure
 ** Returns 1 if both commands parsed successfully, 0 otherwise
 */
-int parse_commands(t_pipex *pipex)
+int	parse_commands(t_pipex *pipex)
 {
-    if (!init_command(&pipex->cmd1, pipex->argv[2]) ||
-        !init_command(&pipex->cmd2, pipex->argv[3]))
-        return (0);
+	if (!init_command(&pipex->cmd1, pipex->argv[2]) ||
+		 !init_command(&pipex->cmd2, pipex->argv[3]))
+		return (0);
 
-    if (!parse_command(&pipex->cmd1, pipex->envp))
-    {
-        cleanup_command(&pipex->cmd1);
-        return (0);
-    }
+	if (!parse_command(&pipex->cmd1, pipex->envp))
+	{
+		cleanup_command(&pipex->cmd1);
+		return (0);
+	}
+	if (!parse_command(&pipex->cmd2, pipex->envp))
+	{
+		cleanup_command(&pipex->cmd1);
+		cleanup_command(&pipex->cmd2);
+		return (0);
+	}
 
-    if (!parse_command(&pipex->cmd2, pipex->envp))
-    {
-        cleanup_command(&pipex->cmd1);
-        cleanup_command(&pipex->cmd2);
-        return (0);
-    }
-
-    return (1);
+	return (1);
 }
 
 /*
@@ -106,7 +90,7 @@ int parse_commands(t_pipex *pipex)
 ** 3. Try each directory to find command
 ** Example: "ls" -> "/bin/ls"
 */
-char *find_command_path(char *cmd, char **envp)
+char	*find_command_path(char *cmd, char **envp)
 {
     char	**paths;
 	char	*path_join;

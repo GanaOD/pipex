@@ -6,28 +6,24 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/14 18:04:00 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/15 16:59:35 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = pipex
+Plan:
 
-all: $(NAME)
+Source files (src/):
+- pipex.c
+- parse.c
+- execute.c
+- utils.c
+- utils_system_calls.c
 
-# First make libft
-libft:
-	@make -C libft/
+Headers (includes/):
+- pipex.h
 
-# Then compile pipex and link with libft
-$(NAME): libft
-	$(CC) $(SRCS) -Llibft -lft -o $(NAME)
+Dependencies:
+- libft (needs to be compiled)
 
-clean:
-	@make clean -C libft/
-	rm -f $(OBJS)
-
-fclean: clean
-	@make fclean -C libft/
-	rm -f $(NAME)
-
-re: fclean all
+Object files:
+- Need a 'obj' directory for .o files

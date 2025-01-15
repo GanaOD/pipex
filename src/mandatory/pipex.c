@@ -6,90 +6,107 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 12:08:35 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/15 12:39:30 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+/*
+** Command parsing module for pipex - Basic Structure
+*/
+
 #include "pipex.h"
 
-void handle_child(t_pipex *pipex)
+static char	*find_command_path(const char *cmd, char **envp);
+
+/*
+** Initialize a command structure with basic values
+*/
+int	init_command(t_command *cmd, const char *raw_cmd)
 {
-    // Open input file
-    pipex->infile = open(pipex->argv[1], O_RDONLY);
-    if (pipex->infile == -1)
-        exit_error("Input file error");
-
-    // Redirect stdin to infile and stdout to pipe
-    dup2(pipex->infile, STDIN_FILENO);
-    dup2(pipex->pipe[1], STDOUT_FILENO);
-    close(pipex->pipe[0]);  // Close unused read end
-
-    // Execute first command
-    execute_command(&pipex->cmd1, pipex->envp);
+    cmd->raw_cmd = raw_cmd;  // Points to argv
+    cmd->args = NULL;
+    cmd->path = NULL;
+    return (1);
 }
 
-void handle_parent(t_pipex *pipex)
+/*
+** Parse a command into arguments and find its path
+*/
+int	parse_command(t_command *cmd, char **envp)
 {
-    // Open output file
-    pipex->outfile = open(pipex->argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (pipex->outfile == -1)
-        exit_error("Output file error");
+    // Split command string into argument array
+    cmd->args = ft_split(cmd->raw_cmd, ' ');
 
-    // Redirect stdin to pipe and stdout to outfile
-    dup2(pipex->pipe[0], STDIN_FILENO);
-    dup2(pipex->outfile, STDOUT_FILENO);
-    close(pipex->pipe[1]);  // Close unused write end
+    // Find full executable path
+    cmd->path = find_command_path(cmd->args[0], envp);
 
-    // Execute second command
-    execute_command(&pipex->cmd2, pipex->envp);
+    return (1);
 }
 
-void    init_pipex(t_pipex *pipex, char **argv, char **envp)
+/*
+** Parse both commands in the pipeline
+*/
+int	parse_pipeline(t_pipex *pipex)
 {
-    // Initialize file descriptors to -1 (invalid)
-    pipex->infile = -1;
-    pipex->outfile = -1;
-    pipex->pipe[0] = -1;
-    pipex->pipe[1] = -1;
+    // Initialize both command structures
+    init_command(&pipex->cmd1, pipex->argv[2]);
+    init_command(&pipex->cmd2, pipex->argv[3]);
 
-    // Store environment variables
-    pipex->envp = envp;
+    // Parse both commands
+    parse_command(&pipex->cmd1, pipex->envp);
+    parse_command(&pipex->cmd2, pipex->envp);
 
-    // Initialize first command
-    pipex->cmd1.raw_cmd = argv[2];
-    pipex->cmd1.args = NULL;
-    pipex->cmd1.path = NULL;
-
-    // Initialize second command
-    pipex->cmd2.raw_cmd = argv[3];
-    pipex->cmd2.args = NULL;
-    pipex->cmd2.path = NULL;
+    return (1);
 }
 
-int main(int argc, char **argv, char **envp)
+/*
+** Clean up a command structure - free allocated memory
+*/
+void	cleanup_command(t_command *cmd)
 {
-    t_pipex  pipex;
+    if (cmd->args)
+        ft_free_array(cmd->args);
+    if (cmd->path)
+        free(cmd->path);
+    cmd->args = NULL;
+    cmd->path = NULL;
+    cmd->raw_cmd = NULL;  // Don't free - points to argv
+}
 
-    if (argc != 5)
-        return (error_handler("Invalid arguments"));
+/*
+** Find command path by searching through PATH directories
+*/
+static char	*find_command_path(const char *cmd, char **envp)
+{
+    char	**paths;
+    char	*path_join;
+    char	*full_path;
+    int		i;
 
-    init_pipex(&pipex, argv, envp);
+    // Find PATH in environment
+    i = 0;
+    while (envp[i] && ft_strncmp(envp[i], "PATH=", 5))
+        i++;
 
-    if (pipe(pipex.pipe) == -1)
-        return (error_handler("Pipe failed"));
+    // Split PATH into directories
+    paths = ft_split(envp[i] + 5, ':');
 
-	pipex.pid = fork();
-	if (pipex.pid == -1)
-		return (error_handler("Fork failed"));
-
-    if (pipex.pid == 0)
-        handle_child(&pipex);
-    else
+    // Try each directory until we find executable
+    i = 0;
+    while (paths[i])
     {
-        waitpid(pipex.pid, NULL, 0);
-        handle_parent(&pipex);
-    }
+        path_join = ft_strjoin(paths[i], "/");
+        full_path = ft_strjoin(path_join, cmd);
+        free(path_join);
 
-    cleanup_pipex(&pipex);
-    return (0);
+        if (access(full_path, F_OK | X_OK) == 0)
+        {
+            ft_free_array(paths);
+            return (full_path);
+        }
+        free(full_path);
+        i++;
+    }
+    ft_free_array(paths);
+    return (NULL);
 }

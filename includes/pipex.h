@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 12:05:14 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/15 12:48:34 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@
 typedef struct s_command
 {
     char    *raw_cmd;    // Original command string
-    char    **args;      // Split command arguments
+    char    **args;      // Split command arguments into array of strings
     char    *path;       // Full path to executable
 }   t_command;
 

@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/15 17:52:14 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/16 10:33:05 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -31,15 +31,19 @@ LIBFT_DIR = libft
 # Clang compiler
 CC = cc
 
-# Compilation flags
+# Compilation flags as given in subject
 CFLAGS = -Wall -Wextra -Werror
 
-# Debug flags
+# Extra debug flags
 DEBUG_FLAGS = -g3 -DDEBUG
+# 3 specifies max debug info (all compiler debug info, allows macro expansion debugging, allows seeing variables, line numbers, source code...)
+# -DDEBUG defines preprocessor macro, enables conditional compilation using #ifdef DEBUG
 DEBUG_FLAGS += -fno-omit-frame-pointer
+# preserves frame pointer register
 
 # Add includes/ directory and libft includes
 INCLUDES = -I includes -I libft
+
 
 
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
@@ -50,7 +54,7 @@ INCLUDES = -I includes -I libft
 SRC_FILES = pipex.c parse.c execute.c
 
 # Utility functions
-SRC_FILES += utils.c utils_system_calls.c
+SRC_FILES += utils_errors+cleanup.c utils_system_calls.c
 
 # Generate full paths
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
@@ -67,6 +71,7 @@ OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 LIBFT = $(LIBFT_DIR)/libft.a
 
 
+
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 #			BUILD RULES			#
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
@@ -77,24 +82,26 @@ all: $(OBJ_DIR) $(NAME)
 # Create object directory first
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
-	@echo "$(BLUE)Created object directory$(CLR_RMV)"
+	@echo "$(BLUE)Created object directory$(RESET)"
 
 # Program compilation - depends on object directory
 $(NAME): $(LIBFT) $(OBJS)
-	@echo "$(YELLOW)Linking $(BOLD)$(NAME)$(CLR_RMV)"
+	@echo "$(YELLOW)Linking $(BOLD)$(NAME)$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJS) -L$(LIBFT_DIR) -lft -o $(NAME)
-	@echo "$(GREEN)$(BOLD)$(NAME) successfully compiled!$(CLR_RMV)"
+	@echo "$(GREEN)$(BOLD)$(NAME) successfully compiled!$(RESET)"
 
 # Object file compilation - explicit dependency on headers
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c includes/pipex.h | $(OBJ_DIR)
-	@echo "$(CYAN)Compiling $(ITALIC)$<$(CLR_RMV)"
+	@echo "$(CYAN)Compiling $(ITALIC)$<$(RESET)"
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 # Compile libft
 $(LIBFT):
-	@echo "$(YELLOW)Compiling libft...$(CLR_RMV)"
+	@echo "$(YELLOW)Compiling libft...$(RESET)"
 	@make -C $(LIBFT_DIR)
-	@echo "$(GREEN)libft compilation complete!$(CLR_RMV)"
+	@echo "$(GREEN)libft compilation complete!$(RESET)"
+# -C dir: change to directory, execute commands relative to this dir, change back when done
+
 
 
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
@@ -102,34 +109,36 @@ $(LIBFT):
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 
 clean:
-	@echo "$(RED)Cleaning object files...$(CLR_RMV)"
+	@echo "$(RED)Cleaning object files...$(RESET)"
 	@rm -rf $(OBJ_DIR)
 	@make -C $(LIBFT_DIR) clean
-	@echo "$(GREEN)Object files cleaned!$(CLR_RMV)"
+	@echo "$(GREEN)Object files cleaned!$(RESET)"
 
 fclean: clean
-	@echo "$(RED)Removing executable...$(CLR_RMV)"
+	@echo "$(RED)Removing executable...$(RESET)"
 	@rm -f $(NAME)
 	@make -C $(LIBFT_DIR) fclean
-	@echo "$(GREEN)All generated files cleaned!$(CLR_RMV)"
+	@echo "$(GREEN)All generated files cleaned!$(RESET)"
 
 re:
-	@echo "$(YELLOW)Rebuilding...$(CLR_RMV)"
+	@echo "$(YELLOW)Rebuilding...$(RESET)"
 	@$(MAKE) fclean
 	@$(MAKE) all
+
 
 
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 #		SPECIAL RULES			#
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 
-# Declare phony targets (targets that don't create files)
+# Declare phony targets (that don't create files)
 .PHONY: all clean fclean re
 
 # Build with debug information
 debug: CFLAGS += -g
 debug: re
 	@echo "Debug build complete!"
+
 
 
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
@@ -145,6 +154,22 @@ CYAN := $(shell tput setaf 6)
 RESET := $(shell tput sgr0)
 BOLD := $(shell tput bold)
 
+# tput: terminal control command:
+#	setaf n sets the ANSI foreground color (text color)
+#	Numbers 1-6 correspond to different colours
+#	sgr0 resets all attributes back to default
+#	These commands output the actual ANSI escape sequences
+
+# RESET: returns terminal to normal
+
+# Colour scheme:
+# Blue:		directory creation
+# Cyan:		file compilation
+# Yellow:	process starts
+# Green:	success messages
+# Red:		cleaning operations
+
+
 
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 #		BUILD GUIDE				#
@@ -154,23 +179,3 @@ BOLD := $(shell tput bold)
 
 # make			: Regular build with standard error checking
 # make debug	: Build with debug symbols for GDB/LLDB
-# make dev		: Development build with extra warnings
-
-
-
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-#		INFO ON THIS MAKEFILE	#
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-
-# OUTPUT:
-
-# Colour scheme:
-
-# Blue for directory creation
-# Cyan for file compilation
-# Yellow for process starts
-# Green for success messages
-# Red for cleaning operations
-
-
-# Text: informative messages, not actual commands (which are suppressed with initial @)

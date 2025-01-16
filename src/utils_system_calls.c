@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 16:14:23 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 17:43:52 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/16 11:25:41 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ int safe_close(int fd)
 		perror("close");
 		return (-1);
 	}
+	printf("Debug: safely closed\n");
 	return (0);
 }
 
@@ -41,6 +42,7 @@ pid_t	safe_fork(void)
 		perror("fork");
 		return (-1);
 	}
+	printf("Debug: safe fork success\n");
 	return (pid);
 }
 
@@ -52,6 +54,7 @@ int	safe_open(const char *path, int flags, mode_t mode)
 		perror(path);
 		return (-1);
 	}
+	printf("Debug: safely opened\n");
 	return (fd);
 }
 
@@ -62,6 +65,7 @@ int	safe_pipe(int pipefd[2])
 		perror("pipe");
 		return (-1); // signal error to caller
 	}
+	printf("Debug: safe pipe success\n");
 	return (0);
 }
 
@@ -73,5 +77,6 @@ pid_t	safe_waitpid(pid_t pid, int *status, int options)
 		perror("waitpid");
 		return (-1);
 	}
+	printf("Debug: safe waitpid\n");
 	return (result);
 }

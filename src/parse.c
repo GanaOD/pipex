@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 16:57:27 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/16 10:38:46 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,72 +16,6 @@
 */
 
 #include "pipex.h"
-
-/*
-** Initialize a command structure with a raw command string
-** Returns 1 on success, 0 on failure
-*/
-int init_command(t_command *cmd, char *raw_cmd)
-{
-	if (!raw_cmd)
-		return (0);
-	cmd->raw_cmd = raw_cmd;
-	cmd->args = NULL;
-	cmd->path = NULL;
-	return (1);
-}
-
-/*
-** Parse a command string into arguments
-** Handles both space separation and quotes
-** Returns 1 on success, 0 on failure
-*/
-int parse_command(t_command *cmd, char **envp)
-{
-    if (!cmd || !cmd->raw_cmd)
-        return (0);
-
-    // Split command into arguments
-    cmd->args = ft_split(cmd->raw_cmd, ' ');
-    if (!cmd->args || !cmd->args[0])
-        return (0);
-
-    // Find command path
-    cmd->path = find_command_path(cmd->args[0], envp);
-    if (!cmd->path)
-    {
-        ft_free_array(cmd->args);
-        cmd->args = NULL;
-        return (0);
-    }
-
-    return (1);
-}
-
-/*
-** Parse both commands in pipex structure
-** Returns 1 if both commands parsed successfully, 0 otherwise
-*/
-int	parse_commands(t_pipex *pipex)
-{
-	if (!init_command(&pipex->cmd1, pipex->argv[2]) ||
-		 !init_command(&pipex->cmd2, pipex->argv[3]))
-		return (0);
-
-	if (!parse_command(&pipex->cmd1, pipex->envp))
-	{
-		cleanup_command(&pipex->cmd1);
-		return (0);
-	}
-	if (!parse_command(&pipex->cmd2, pipex->envp))
-	{
-		cleanup_command(&pipex->cmd1);
-		cleanup_command(&pipex->cmd2);
-		return (0);
-	}
-
-	return (1);
-}
 
 /*
 ** Find executable path from command name by:
@@ -131,4 +65,70 @@ char	*find_command_path(char *cmd, char **envp)
     }
 	ft_free_array(paths);
 	return (NULL);
+}
+
+/*
+** Parse a command string into arguments
+** Handles both space separation and quotes
+** Returns 1 on success, 0 on failure
+*/
+int parse_command(t_command *cmd, char **envp)
+{
+    if (!cmd || !cmd->raw_cmd)
+        return (0);
+
+    // Split command into arguments
+    cmd->args = ft_split(cmd->raw_cmd, ' ');
+    if (!cmd->args || !cmd->args[0])
+        return (0);
+
+    // Find command path
+    cmd->path = find_command_path(cmd->args[0], envp);
+    if (!cmd->path)
+    {
+        ft_free_array(cmd->args);
+        cmd->args = NULL;
+        return (0);
+    }
+
+    return (1);
+}
+
+/*
+** Initialize a command structure with a raw command string
+** Returns 1 on success, 0 on failure
+*/
+int init_command(t_command *cmd, char *raw_cmd)
+{
+	if (!raw_cmd)
+		return (0);
+	cmd->raw_cmd = raw_cmd;
+	cmd->args = NULL;
+	cmd->path = NULL;
+	return (1);
+}
+
+/*
+** Parse both commands in pipex structure
+** Returns 1 if both commands parsed successfully, 0 otherwise
+*/
+int	parse_commands(t_pipex *pipex)
+{
+	if (!init_command(&pipex->cmd1, pipex->argv[2]) ||
+		 !init_command(&pipex->cmd2, pipex->argv[3]))
+		return (0);
+
+	if (!parse_command(&pipex->cmd1, pipex->envp))
+	{
+		cleanup_command(&pipex->cmd1);
+		return (0);
+	}
+	if (!parse_command(&pipex->cmd2, pipex->envp))
+	{
+		cleanup_command(&pipex->cmd1);
+		cleanup_command(&pipex->cmd2);
+		return (0);
+	}
+
+	return (1);
 }

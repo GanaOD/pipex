@@ -6,84 +6,81 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 18:07:22 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/16 12:17:16 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void cleanup_pipex(t_pipex *pipex)
-{
-	if (!pipex)
-		return;
-
-	// Close file descriptors if open
-	if (pipex->infile != -1)
-		close(pipex->infile);
-	if (pipex->outfile != -1)
-		close(pipex->outfile);
-	if (pipex->pipe[0] != -1)
-		close(pipex->pipe[0]);
-	if (pipex->pipe[1] != -1)
-		close(pipex->pipe[1]);
-
-	// Cleanup commands
-	cleanup_command(&pipex->cmd1);
-	cleanup_command(&pipex->cmd2);
-
-	// Reset all pointers and file descriptors
-	pipex->infile = -1;
-	pipex->outfile = -1;
-	pipex->pipe[0] = -1;
-	pipex->pipe[1] = -1;
-	pipex->envp = NULL;  // Don't free as it's from main
-}
-
-// wrapping dup(2) calls directly in error checks
-void handle_child(t_pipex *pipex)
-{
-	// Open input file
-	pipex->infile = safe_open(pipex->argv[1], O_RDONLY, 0644);
-	if (pipex->infile == -1)
-		exit_error("Input file error");
-
-	// Redirect stdin to infile
-	if(dup2(pipex->infile, STDIN_FILENO) == -1)
-		exit_error("Failed to redirect stdin to input file");
-
-	// Redirect stdout to pipe
-	if(dup2(pipex->pipe[1], STDOUT_FILENO) == -1)
-		exit_error("Failed to redirect stdout to pipe write end");
-
-	// Close unused read end
-	if (safe_close(pipex->pipe[0]) == -1)
-		exit_error("Failed to close unused pipe read end");
-
-	// Execute first command
-	execute_command(&pipex->cmd1, pipex->envp);
-}
-
 void handle_parent(t_pipex *pipex)
 {
+	printf("Parent: Starting with pipe[0]=%d, pipe[1]=%d\n", pipex->pipe[0], pipex->pipe[1]);
+
 	// Open output file
 	pipex->outfile = open(pipex->argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	printf("Parent: Opened outfile with fd=%d\n", pipex->outfile);
 	if (pipex->outfile == -1)
 		exit_error("Output file error");
 
-	// Redirect stdin to pipe
+	// Close stdin before duplicating
+	if (safe_close(STDOUT_FILENO) == -1)
+		exit_error("Failed to close stdout before duplication");
+
+	// Redirect stdin to pipe read end
+	printf("Parent: Redirecting stdin (0) to pipe[0]\n");
 	if (dup2(pipex->pipe[0], STDIN_FILENO) == -1)
 		exit_error("Failed to redirect stdin to pipe read end");
 
 	// Redirect stdout to outfile
+	printf("Parent: Redirecting stdout (1) to outfile\n");
 	if (dup2(pipex->outfile, STDOUT_FILENO) == -1)
 		exit_error("Failed to redirect stdout to outfile");
 
-	// Close unused write end
+	// Close unused file descriptors
+	if (safe_close(pipex->pipe[0]) == -1)
+		exit_error("Failed to close original pipe read end");
 	if (safe_close(pipex->pipe[1]) == -1)
-		exit_error("Failed to close unused pipe write end");
+		exit_error("Failed to close pipe write end");
+	if (safe_close(pipex->infile) == -1)
+		exit_error("Failed to close original outfile");
 
 	// Execute second command
+	printf("Parent: About to execute wc\n");
 	execute_command(&pipex->cmd2, pipex->envp);
+}
+void handle_child(t_pipex *pipex)
+{
+	// Open input file
+	pipex->infile = safe_open(pipex->argv[1], O_RDONLY, 0644);
+	printf("Child: Opened infile with fd=%d\n", pipex->infile);
+	if (pipex->infile == -1)
+		exit_error("Input file error");
+
+	// Close stdin before duplicating (as dup2 requires inactive fildes before creating new reference to stdin)
+	if (safe_close(STDIN_FILENO))
+		exit_error("Failed to close stdin before duplication");
+
+	// Redirect stdin to infile
+	printf("Child: Redirecting stdin (0) to infile\n");
+	if (dup2(pipex->infile, STDIN_FILENO) == -1)
+		exit_error("Failed to redirect stdin to input file");
+
+	// Redirect stdout to pipe write end
+	printf("Child: Redirecting stdout (1) to pipe[1]\n");
+	if(dup2(pipex->pipe[1], STDOUT_FILENO) == -1)
+		exit_error("Failed to redirect stdout to pipe write end");
+
+	// Close unused file descriptors
+	if (safe_close(pipex->pipe[0]) == -1)
+		exit_error("Failed to close pipe read end");
+	if (safe_close(pipex->pipe[1]) == -1)
+		exit_error("Failed to close original pipe write end");
+	if (safe_close(pipex->infile) == -1)
+		exit_error("Failed to close original infile");
+
+	// Execute first command
+	printf("Child: About to execute grep\n");
+	execute_command(&pipex->cmd1, pipex->envp);
 }
 
 /*
@@ -133,31 +130,30 @@ void    init_pipex(t_pipex *pipex, char **argv, char **envp)
 int main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
-	printf("Debug: Starting program\n");
 
 	if (argc != 5)
 		return (error_handler("Invalid arguments"));
 
-	printf("Debug: Initializing pipex\n");
+	printf("Main: Initializing pipex\n");
 	init_pipex(&pipex, argv, envp);
-	printf("Debug: Initialization complete\n");
 
-	printf("Debug: Creating pipe\n");
+	printf("Main: Creating pipe\n");
 	if (safe_pipe(pipex.pipe) == -1)
 		return (error_handler("Pipe failed"));
-	printf("Debug: Pipe created successfully\n");
 
-	printf("Debug: Forking process\n");
+	printf("Main: Parsing commands\n");
+	if (!parse_commands(&pipex))
+		return (error_handler("Command parsing failed"));
+	printf("Main: CMD1: %s, CMD2: %s\n", pipex.cmd1.path, pipex.cmd2.path);
+
+	printf("Main: Forking process\n");
 	pipex.pid = safe_fork();
 	// program flow error handling
 	if (pipex.pid == -1)
 		return (error_handler("Fork failed"));
 
-	printf("Debug: Fork successful, pid: %d\n", pipex.pid);
-
 	if (pipex.pid == 0)
 	{
-		printf("Debug: Child process starting\n");
 		handle_child(&pipex);
 		// If successful, this process becomes cmd1 entirely
 		printf("Debug: Child process complete\n"); // This likely won't print if execve succeeds

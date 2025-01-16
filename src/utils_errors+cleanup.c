@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:05:16 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/15 17:58:24 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/16 10:11:51 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,33 @@ void	cleanup_command(t_command *cmd)
 
 	// Don't free raw_cmd as it points to argv
 	cmd->raw_cmd = NULL;
+}
+
+void cleanup_pipex(t_pipex *pipex)
+{
+	if (!pipex)
+		return;
+
+	// Close file descriptors if open
+	if (pipex->infile != -1)
+		close(pipex->infile);
+	if (pipex->outfile != -1)
+		close(pipex->outfile);
+	if (pipex->pipe[0] != -1)
+		close(pipex->pipe[0]);
+	if (pipex->pipe[1] != -1)
+		close(pipex->pipe[1]);
+
+	// Cleanup commands
+	cleanup_command(&pipex->cmd1);
+	cleanup_command(&pipex->cmd2);
+
+	// Reset all pointers and file descriptors
+	pipex->infile = -1;
+	pipex->outfile = -1;
+	pipex->pipe[0] = -1;
+	pipex->pipe[1] = -1;
+	pipex->envp = NULL;  // Don't free as it's from main
 }
 
 int	error_handler(char *msg)

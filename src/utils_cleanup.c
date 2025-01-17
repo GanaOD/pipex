@@ -1,18 +1,14 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils_cleanup.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/14 12:05:16 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/16 10:11:51 by go-donne         ###   ########.fr       */
+/*   Created: 2025/01/17 19:04:28 by go-donne          #+#    #+#             */
+/*   Updated: 2025/01/17 19:05:25 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-/*
-** Error handling and cleanup utilities for pipex
-*/
 
 #include "pipex.h"
 
@@ -86,18 +82,4 @@ void cleanup_pipex(t_pipex *pipex)
 	pipex->pipe[0] = -1;
 	pipex->pipe[1] = -1;
 	pipex->envp = NULL;  // Don't free as it's from main
-}
-
-int	error_handler(char *msg)
-{
-	ft_putstr_fd("Error: ", 2);
-	ft_putendl_fd(msg, 2);
-	return (1);
-}
-
-void	exit_error(char *msg)
-{
-	if (msg)
-		perror(msg);
-	exit(EXIT_FAILURE);
 }

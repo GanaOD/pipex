@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/16 10:33:05 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/17 19:47:19 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ NAME = pipex
 # Directory structure
 SRC_DIR = src
 OBJ_DIR = obj
-INC_DIR = includes
+INC_DIR = inc
 LIBFT_DIR = libft
 
 
@@ -34,12 +34,18 @@ CC = cc
 # Compilation flags as given in subject
 CFLAGS = -Wall -Wextra -Werror
 
+
 # Extra debug flags
 DEBUG_FLAGS = -g3 -DDEBUG
 # 3 specifies max debug info (all compiler debug info, allows macro expansion debugging, allows seeing variables, line numbers, source code...)
 # -DDEBUG defines preprocessor macro, enables conditional compilation using #ifdef DEBUG
+
 DEBUG_FLAGS += -fno-omit-frame-pointer
 # preserves frame pointer register
+
+DEBUG_FLAGS += -fsanitize=address
+# ASan
+
 
 # Add includes/ directory and libft includes
 INCLUDES = -I includes -I libft
@@ -51,10 +57,10 @@ INCLUDES = -I includes -I libft
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 
 # Core functionality
-SRC_FILES = pipex.c parse.c execute.c
+SRC_FILES = pipex.c parse.c child.c execute.c
 
 # Utility functions
-SRC_FILES += utils_errors+cleanup.c utils_system_calls.c
+SRC_FILES += utils_error_handling.c utils_cleanup.c utils_system_calls.c
 
 # Generate full paths
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
@@ -136,8 +142,13 @@ re:
 
 # Build with debug information
 debug: CFLAGS += -g
-debug: re
+debug: $(OBJS)
 	@echo "Debug build complete!"
+
+# Rule to build object files with debug flags
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c includes/pipex.h | $(OBJ_DIR)
+    @echo "$(CYAN)Compiling $(ITALIC) $<$(RESET) with debug flags"
+    @$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 
 

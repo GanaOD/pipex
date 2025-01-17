@@ -6,168 +6,88 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/16 12:17:16 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:02:41 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void handle_parent(t_pipex *pipex)
-{
-	printf("Parent: Starting with pipe[0]=%d, pipe[1]=%d\n", pipex->pipe[0], pipex->pipe[1]);
-
-	// Open output file
-	pipex->outfile = open(pipex->argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	printf("Parent: Opened outfile with fd=%d\n", pipex->outfile);
-	if (pipex->outfile == -1)
-		exit_error("Output file error");
-
-	// Close stdin before duplicating
-	if (safe_close(STDOUT_FILENO) == -1)
-		exit_error("Failed to close stdout before duplication");
-
-	// Redirect stdin to pipe read end
-	printf("Parent: Redirecting stdin (0) to pipe[0]\n");
-	if (dup2(pipex->pipe[0], STDIN_FILENO) == -1)
-		exit_error("Failed to redirect stdin to pipe read end");
-
-	// Redirect stdout to outfile
-	printf("Parent: Redirecting stdout (1) to outfile\n");
-	if (dup2(pipex->outfile, STDOUT_FILENO) == -1)
-		exit_error("Failed to redirect stdout to outfile");
-
-	// Close unused file descriptors
-	if (safe_close(pipex->pipe[0]) == -1)
-		exit_error("Failed to close original pipe read end");
-	if (safe_close(pipex->pipe[1]) == -1)
-		exit_error("Failed to close pipe write end");
-	if (safe_close(pipex->infile) == -1)
-		exit_error("Failed to close original outfile");
-
-	// Execute second command
-	printf("Parent: About to execute wc\n");
-	execute_command(&pipex->cmd2, pipex->envp);
-}
-void handle_child(t_pipex *pipex)
-{
-	// Open input file
-	pipex->infile = safe_open(pipex->argv[1], O_RDONLY, 0644);
-	printf("Child: Opened infile with fd=%d\n", pipex->infile);
-	if (pipex->infile == -1)
-		exit_error("Input file error");
-
-	// Close stdin before duplicating (as dup2 requires inactive fildes before creating new reference to stdin)
-	if (safe_close(STDIN_FILENO))
-		exit_error("Failed to close stdin before duplication");
-
-	// Redirect stdin to infile
-	printf("Child: Redirecting stdin (0) to infile\n");
-	if (dup2(pipex->infile, STDIN_FILENO) == -1)
-		exit_error("Failed to redirect stdin to input file");
-
-	// Redirect stdout to pipe write end
-	printf("Child: Redirecting stdout (1) to pipe[1]\n");
-	if(dup2(pipex->pipe[1], STDOUT_FILENO) == -1)
-		exit_error("Failed to redirect stdout to pipe write end");
-
-	// Close unused file descriptors
-	if (safe_close(pipex->pipe[0]) == -1)
-		exit_error("Failed to close pipe read end");
-	if (safe_close(pipex->pipe[1]) == -1)
-		exit_error("Failed to close original pipe write end");
-	if (safe_close(pipex->infile) == -1)
-		exit_error("Failed to close original infile");
-
-	// Execute first command
-	printf("Child: About to execute grep\n");
-	execute_command(&pipex->cmd1, pipex->envp);
-}
-
 /*
-Setting the following pointers to NULL is good practice because:
-
-It gives them a known initial state
-We can later check if they're NULL before trying to use them
-It helps prevent undefined behavior from uninitialized pointers
-Makes it clear these will be allocated/assigned later during command parsing
+Initialise pipex structure with starting values & command configurations
+@param pipex:	pointer to pipex structure
+@param argv:	array of command-line arguments passed at execution
+@param envp:	array of environment variables from shell environment
 */
-
-void    init_pipex(t_pipex *pipex, char **argv, char **envp)
+void	init_pipex(t_pipex *pipex, char **argv, char **envp)
 {
-	// Initialize file descriptors to -1 (invalid)
+	// Initialize file descriptors to -1 (invalid/unused state)
+	// to help error checking & cleanup later
 	pipex->infile = -1;
 	pipex->outfile = -1;
 	pipex->pipe[0] = -1;
 	pipex->pipe[1] = -1;
 
-	// Store environment variables
+	// Store pointer to environment variables array
 	pipex->envp = envp;
 
+	// Store pointer to command-line arguments array
+	pipex->argv = argv;
 
+	// Initialize first command struct (cmd1), from argv[2]
+	pipex->cmd1.raw_cmd = argv[2];	// store raw command string
+	pipex->cmd1.args = NULL;		// will hold command args after split
+	pipex->cmd1.path = NULL;		// will hold full path to executable
 
-	// Initialize first command
-
-	pipex->cmd1.raw_cmd = argv[2];
-	// "Store the address of the 3rd command line argument in the raw_cmd pointer
-	// which is inside the cmd1 struct, which is inside the struct that pipex points to"
-
-	pipex->cmd1.args = NULL;
-	// "Set the args pointer (which is inside cmd1 struct, inside the pipex struct) to NULL"
-
-	pipex->cmd1.path = NULL;
-	// "Set the path pointer (which is inside cmd1 struct, inside the pipex struct) to NULL"
-
-
-	// Initialize second command
+	// Initialize second command struct (cmd2), contained in argv[3]
 	pipex->cmd2.raw_cmd = argv[3];
 	pipex->cmd2.args = NULL;
 	pipex->cmd2.path = NULL;
-
-
-	pipex->argv = argv;
 }
 
 int main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
 
+	// Validate nr. of arguments
 	if (argc != 5)
 		return (error_handler("Invalid arguments"));
 
-	printf("Main: Initializing pipex\n");
+	// Check for null pointers from shell
+	if (!argv || !envp)
+		return (error_handler("Invalid shell environment"));
+
+	// Params valid, now initialise pipex
 	init_pipex(&pipex, argv, envp);
 
-	printf("Main: Creating pipe\n");
+	if (!parse_commands(&pipex))
+		return (error_handler("Command parsing failed"));
+
+	// Create pipe
 	if (safe_pipe(pipex.pipe) == -1)
 		return (error_handler("Pipe failed"));
 
-	printf("Main: Parsing commands\n");
-	if (!parse_commands(&pipex))
-		return (error_handler("Command parsing failed"));
-	printf("Main: CMD1: %s, CMD2: %s\n", pipex.cmd1.path, pipex.cmd2.path);
+	// 1st fork
+	pipex.pid1 = safe_fork();
+	if (pipex.pid1 ==-1)
+		return (error_handler("First fork failed"));
+	if (pipex.pid1 == 0)	// 1st child
+		handle_first_child(&pipex);
 
-	printf("Main: Forking process\n");
-	pipex.pid = safe_fork();
-	// program flow error handling
-	if (pipex.pid == -1)
-		return (error_handler("Fork failed"));
+	// 2nd fork
+	pipex.pid2 = safe_fork();
+	if (pipex.pid2 == -1)
+		return (error_handler("Second fork failed"));
+	if (pipex.pid2 == 0)	// 2nd child
+		handle_second_child(&pipex);
 
-	if (pipex.pid == 0)
-	{
-		handle_child(&pipex);
-		// If successful, this process becomes cmd1 entirely
-		printf("Debug: Child process complete\n"); // This likely won't print if execve succeeds
-	}
-	else
-	{
-		printf("Debug: Parent process waiting for child\n");
-		if (safe_waitpid(pipex.pid, NULL, 0) == -1)
-			return (error_handler("Waitpid failed"));
-		// prototype: waitpid(childpid, &status, 0) : Suspends execution until child process terminates
-		printf("Debug: Child process finished, parent continuing\n");
+	// Parent process
+	// Close pipe ends in parent: not needed
+	safe_close(pipex.pipe[0]);
+	safe_close(pipex.pipe[1]);
 
-		handle_parent(&pipex);
-	}
+	// Wait for both children to finish
+	safe_waitpid(pipex.pid1, NULL, 0);
+	safe_waitpid(pipex.pid2, NULL, 0);
 
 	cleanup_pipex(&pipex);
 	return (0);

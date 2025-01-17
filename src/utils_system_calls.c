@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 16:14:23 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/16 11:25:41 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:33:30 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,5 @@ pid_t	safe_waitpid(pid_t pid, int *status, int options)
 		perror("waitpid");
 		return (-1);
 	}
-	printf("Debug: safe waitpid\n");
 	return (result);
 }

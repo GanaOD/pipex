@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/16 10:50:22 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/17 19:09:09 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,13 +38,13 @@ typedef struct s_pipex
 	t_command	cmd2;		// Second command
 	char		**envp;		// Environment variables
 	char		**argv;		// Program arguments
-	pid_t		pid;		// Process ID for fork
+	pid_t		pid1;		// Process ID for fork 1
+	pid_t		pid2;		// Process ID for fork 2
 }	t_pipex;
 
 
-/* Main program flow (pipex.c) */
-void 	handle_child(t_pipex *pipex);
-void 	handle_parent(t_pipex *pipex);
+// Main program flow
+// Core pipe handling, initialisation & setup (pipex.c)
 void    init_pipex(t_pipex *pipex, char **argv, char **envp);
 
 // Command/argument parsing & path resolution (parse.c)
@@ -53,17 +53,21 @@ int		parse_command(t_command *cmd, char **envp);
 int		parse_commands(t_pipex *pipex);
 char	*find_command_path(char *cmd, char **envp);
 
+// Child process handling functions (child.c)
+void 	handle_first_child(t_pipex *pipex);
+void 	handle_second_child(t_pipex *pipex);
+
 // Command execution logic (execute.c)
 void execute_command(t_command *cmd, char **envp);
 
-
-/* Error handling and cleanup functions (utils_errors+cleanup.c) */
-void 	cleanup_pipex(t_pipex *pipex);
-void	ft_free_array(char **arr);
+/* Error handling (utils_error_handling.c) */
 void	exit_error(char *msg);
-void	cleanup_command(t_command *cmd);
 int		error_handler(char *msg);
 
+// Cleanup (utils_cleanup.c)
+void 	cleanup_pipex(t_pipex *pipex);
+void	cleanup_command(t_command *cmd);
+void	ft_free_array(char **arr);
 
 // Error-handling: system call wrappers (utils_system_calls.c)
 int 	safe_close(int fd);

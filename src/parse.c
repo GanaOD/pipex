@@ -6,24 +6,13 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/17 18:38:01 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/18 12:50:25 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-/*
-** Command parsing module for pipex
-** Handles command string parsing and command structure initialization
-*/
-
 #include "pipex.h"
 
-/*
-** Find executable path from command name by:
-** 1. Get PATH variable from environment
-** 2. Split PATH into directories
-** 3. Try each directory to find command
-** Example: "ls" -> "/bin/ls"
-*/
+// Find full path of command by searching system's PATH variable
 char	*find_command_path(char *cmd, char **envp)
 {
     char	**paths;
@@ -69,20 +58,20 @@ char	*find_command_path(char *cmd, char **envp)
 
 /*
 ** Parse a command string into arguments
-** Handles both space separation and quotes
+** Handles both normal & quotes args
 ** Returns 1 on success, 0 on failure
 */
 int parse_command(t_command *cmd, char **envp)
 {
-    if (!cmd || !cmd->raw_cmd)
-        return (0);
+	if (!cmd || !cmd->raw_cmd)
+		return (0);
 
-    // Split command into arguments
-    cmd->args = ft_split(cmd->raw_cmd, ' ');
-    if (!cmd->args || !cmd->args[0])
-        return (0);
+	// Split raw command string into arguments, handling quotes
+	cmd->args = split_with_quotes(cmd->raw_cmd);
+	if (!cmd->args || !cmd->args[0])
+		return (0);
 
-    // Find command path
+	// Find command path
     cmd->path = find_command_path(cmd->args[0], envp);
     if (!cmd->path)
     {

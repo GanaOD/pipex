@@ -6,19 +6,22 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/18 10:02:59 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/18 13:07:48 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
+// STRUCTURE THESE TOO BY TYPE
 # include <unistd.h>
 # include <stdlib.h>
 # include <fcntl.h>
 # include <sys/wait.h>
 # include <errno.h>
 # include "libft.h"
+# include <stdbool.h>
+# include <ctype.h>
 
 // Structure for individual commands
 typedef struct s_command
@@ -47,11 +50,18 @@ typedef struct s_pipex
 // Core pipe handling, initialisation & setup (pipex.c)
 void    init_pipex(t_pipex *pipex, char **argv, char **envp);
 
-// Command/argument parsing & path resolution (parse.c)
+
+// Command/argument parsing & path resolution
+// (parsing.c) Parsing logic flow:
+int		parse_commands(t_pipex *pipex);
 int		init_command(t_command *cmd, char *raw_cmd);
 int		parse_command(t_command *cmd, char **envp);
-int		parse_commands(t_pipex *pipex);
 char	*find_command_path(char *cmd, char **envp);
+
+// (utils_parsing.c) Helper utils for specific parsing mechanics
+static bool	is_quote(char c);
+char	**split_with_quotes(const char *cmd);
+char	*remove_quotes(char *arg);
 
 // Child process handling functions (child.c)
 void 	handle_first_child(t_pipex *pipex);

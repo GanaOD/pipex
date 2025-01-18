@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/18 11:15:41 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/18 13:08:25 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,7 +55,8 @@ INCLUDES = -I $(INC_DIR) -I libft
 
 # Core functionality
 SRC_FILES = pipex.c parse.c child.c execute.c \
-			utils_error_handling.c utils_cleanup.c utils_system_calls.c
+			utils_error_handling.c utils_parse.c \
+			utils_system_calls.c utils_cleanup.c
 
 
 # Generate full paths

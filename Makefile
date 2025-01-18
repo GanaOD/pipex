@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/17 19:47:19 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/18 11:15:41 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@
 
 # Name of the executable
 NAME = pipex
+NAME_DEBUG = $(NAME)_debug
 
 # Directory structure
 SRC_DIR = src
@@ -36,19 +37,15 @@ CFLAGS = -Wall -Wextra -Werror
 
 
 # Extra debug flags
-DEBUG_FLAGS = -g3 -DDEBUG
-# 3 specifies max debug info (all compiler debug info, allows macro expansion debugging, allows seeing variables, line numbers, source code...)
-# -DDEBUG defines preprocessor macro, enables conditional compilation using #ifdef DEBUG
-
-DEBUG_FLAGS += -fno-omit-frame-pointer
-# preserves frame pointer register
-
-DEBUG_FLAGS += -fsanitize=address
+DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer -fsanitize=address
+# 3:		specifies max debug info (all compiler debug info, allows macro expansion debugging, allows seeing variables, line numbers, source code...)
+# -DDEBUG:	defines preprocessor macro, enables conditional compilation using #ifdef DEBUG
+# -fno...:	preserves frame pointer register
 # ASan
 
 
-# Add includes/ directory and libft includes
-INCLUDES = -I includes -I libft
+# Add inc/ directory and libft includes
+INCLUDES = -I $(INC_DIR) -I libft
 
 
 
@@ -57,24 +54,18 @@ INCLUDES = -I includes -I libft
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 
 # Core functionality
-SRC_FILES = pipex.c parse.c child.c execute.c
+SRC_FILES = pipex.c parse.c child.c execute.c \
+			utils_error_handling.c utils_cleanup.c utils_system_calls.c
 
-# Utility functions
-SRC_FILES += utils_error_handling.c utils_cleanup.c utils_system_calls.c
 
 # Generate full paths
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
-# Creates a list of paths. If SRC_DIR is "src", then:
-#	SRC_FILES is: pipex.c parse.c execute.c...
-#	SRCS becomes: src/pipex.c src/parse.c src/execute.c...
-# This tells make where to find source files
-
-# Object files
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-# uses pattern substitution to create obj/.o from src/.c
+OBJS_DEBUG = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%_debug.o)
 
 # Libft external library
 LIBFT = $(LIBFT_DIR)/libft.a
+
 
 
 
@@ -82,31 +73,43 @@ LIBFT = $(LIBFT_DIR)/libft.a
 #			BUILD RULES			#
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 
-# Default target
+# Default rule
 all: $(OBJ_DIR) $(NAME)
 
-# Create object directory first
+# Create obj directory if it doesn't exist
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 	@echo "$(BLUE)Created object directory$(RESET)"
 
-# Program compilation - depends on object directory
+# Regular build
 $(NAME): $(LIBFT) $(OBJS)
-	@echo "$(YELLOW)Linking $(BOLD)$(NAME)$(RESET)"
+	@echo "$(YELLOW)Linking $(NAME)$(RESET)"
 	@$(CC) $(CFLAGS) $(OBJS) -L$(LIBFT_DIR) -lft -o $(NAME)
-	@echo "$(GREEN)$(BOLD)$(NAME) successfully compiled!$(RESET)"
+	@echo "$(GREEN)Build complete!$(RESET)"
 
-# Object file compilation - explicit dependency on headers
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c includes/pipex.h | $(OBJ_DIR)
-	@echo "$(CYAN)Compiling $(ITALIC)$<$(RESET)"
+# Regular objects
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_DIR)/pipex.h | $(OBJ_DIR)
+	@echo "$(CYAN)Compiling $<$(RESET)"
 	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Compile libft
+# Debug build
+debug: $(OBJ_DIR) $(NAME_DEBUG)
+
+# Debug program
+$(NAME_DEBUG): $(LIBFT) $(OBJS_DEBUG)
+	@echo "$(YELLOW)Linking debug build$(RESET)"
+	@$(CC) $(CFLAGS) $(DEBUG_FLAGS) $(OBJS_DEBUG) -L$(LIBFT_DIR) -lft -o $(NAME_DEBUG)
+	@echo "$(GREEN)Debug build complete!$(RESET)"
+
+# Debug objects (with _debug suffix)
+$(OBJ_DIR)/%_debug.o: $(SRC_DIR)/%.c $(INC_DIR)/pipex.h | $(OBJ_DIR)
+	@echo "$(CYAN)Compiling $< (debug)$(RESET)"
+	@$(CC) $(CFLAGS) $(DEBUG_FLAGS) $(INCLUDES) -c $< -o $@
+
+# Libft
 $(LIBFT):
-	@echo "$(YELLOW)Compiling libft...$(RESET)"
+	@echo "$(YELLOW)Building libft$(RESET)"
 	@make -C $(LIBFT_DIR)
-	@echo "$(GREEN)libft compilation complete!$(RESET)"
-# -C dir: change to directory, execute commands relative to this dir, change back when done
 
 
 
@@ -122,7 +125,7 @@ clean:
 
 fclean: clean
 	@echo "$(RED)Removing executable...$(RESET)"
-	@rm -f $(NAME)
+	@rm -f $(NAME) $(NAME)_debug
 	@make -C $(LIBFT_DIR) fclean
 	@echo "$(GREEN)All generated files cleaned!$(RESET)"
 
@@ -132,23 +135,9 @@ re:
 	@$(MAKE) all
 
 
-
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-#		SPECIAL RULES			#
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-
 # Declare phony targets (that don't create files)
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re debug
 
-# Build with debug information
-debug: CFLAGS += -g
-debug: $(OBJS)
-	@echo "Debug build complete!"
-
-# Rule to build object files with debug flags
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c includes/pipex.h | $(OBJ_DIR)
-    @echo "$(CYAN)Compiling $(ITALIC) $<$(RESET) with debug flags"
-    @$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 
 
@@ -186,7 +175,10 @@ BOLD := $(shell tput bold)
 #		BUILD GUIDE				#
 #	⭐	⭐	⭐	⭐	⭐	⭐	⭐
 
-# Available build commands:
+# Available build commands as defined in .PHONY
 
-# make			: Regular build with standard error checking
-# make debug	: Build with debug symbols for GDB/LLDB
+# make or make all:	Default build
+# make debug:			Build with debug flags
+# make clean:			Remove object files
+# make fclean:		Remove objects and executables (full clean)
+# make re:			Rebuild from scratch (runs fclean then all)

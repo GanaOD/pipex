@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/17 19:09:09 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/18 10:02:59 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,9 @@ void 	handle_first_child(t_pipex *pipex);
 void 	handle_second_child(t_pipex *pipex);
 
 // Command execution logic (execute.c)
-void execute_command(t_command *cmd, char **envp);
+void	execute_command(t_command *cmd, char **envp);
 
-/* Error handling (utils_error_handling.c) */
+// Error handling (utils_error_handling.c)
 void	exit_error(char *msg);
 int		error_handler(char *msg);
 

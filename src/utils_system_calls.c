@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 16:14:23 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 14:16:02 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 17:41:28 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ int safe_close(int fd)
 		perror("close");
 		return (-1);
 	}
-	ft_putstr_fd("Debug: safely closed\n", 2);
 	return (0);
 }
 
@@ -42,7 +41,6 @@ pid_t	safe_fork(void)
 		perror("fork");
 		return (-1);
 	}
-	printf("Debug: safe fork success\n");
 	return (pid);
 }
 
@@ -54,7 +52,6 @@ int	safe_open(const char *path, int flags, mode_t mode)
 		perror(path);
 		return (-1);
 	}
-	printf("Debug: safely opened\n");
 	return (fd);
 }
 
@@ -65,14 +62,13 @@ int	safe_pipe(int pipefd[2])
 		perror("pipe");
 		return (-1); // signal error to caller
 	}
-	printf("Debug: safe pipe success\n");
 	return (0);
 }
 
 pid_t	safe_waitpid(pid_t pid, int *status, int options)
 {
 	pid_t result = waitpid(pid, status, options);
-	if (result == -1)
+	if (result == -1 && errno != ECHILD) // only error if it's not "No child processes"
 	{
 		perror("waitpid");
 		return (-1);

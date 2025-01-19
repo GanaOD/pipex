@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/18 15:22:37 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/19 16:59:48 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,7 +34,7 @@ CC = cc
 
 # Compilation flags as given in subject
 CFLAGS = -Wall -Wextra -Werror
-CFLAGS += 
+CFLAGS +=
 
 # Extra debug flags
 DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer -fsanitize=address

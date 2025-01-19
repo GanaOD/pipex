@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:40:24 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 13:56:32 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 16:57:19 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,42 +18,42 @@
 */
 void execute_command(t_command *cmd, char **envp)
 {
+	// Check valid command structure
 	if (!cmd || !cmd->path || !cmd->args)
 		exit_error("Invalid command structure");
 
-
-
-	// DEBUGGING: print full command structure
-	ft_putstr_fd("\n=== Command Execution Debug ===\n", 2);
-    ft_putstr_fd("Path: ", 2);
-    ft_putstr_fd(cmd->path, 2);
-    ft_putstr_fd("\nArguments:\n", 2);
-
-	int i = 0;
-    while (cmd->args[i])
-    {
-        ft_putstr_fd("[", 2);
-        ft_putstr_fd(cmd->args[i], 2);
-        ft_putstr_fd("]\n", 2);
-        i++;
-    }
-    ft_putstr_fd("========================\n", 2);
-
-
-
 	execve(cmd->path, cmd->args, envp);
 
+	// If execve failed, format error prefix
+    ft_putstr_fd("pipex: ", STDERR_FILENO);
+    ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+    ft_putstr_fd(": ", STDERR_FILENO);
 
-	// DEBUGGING
-	ft_putstr_fd("execve failed for command: ", 2);
-    ft_putstr_fd(cmd->path, 2);
-    ft_putstr_fd("\n", 2);
-    perror("execve");
-    exit(EXIT_FAILURE);
-
-
-	// // This line only reached if execve failed:
-	// exit_error(cmd->path);
-	// printf("Debug: execve failed");
-	// // also specific error message: perror prints path as string, :, then the string describing the last error that occurred (from errno)
+    // Handle specific error cases
+    if (errno == ENOENT)
+    {
+        ft_putendl_fd("command not found", STDERR_FILENO);
+        exit(127);
+    }
+    else if (errno == EACCES)
+    {
+        ft_putendl_fd("Permission denied", STDERR_FILENO);
+        exit(126);
+    }
+    else if (errno == EISDIR)
+    {
+        ft_putendl_fd("Is a directory", STDERR_FILENO);
+        exit(126);
+    }
+    else if (errno == ENOMEM)
+    {
+        ft_putendl_fd("Cannot allocate memory", STDERR_FILENO);
+        exit(1);
+    }
+    else
+    {
+        // For any other errors, use perror's standard messages
+        perror("");
+        exit(1);
+    }
 }

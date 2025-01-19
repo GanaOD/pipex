@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 12:26:07 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 14:04:59 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 16:57:58 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,34 +51,7 @@ char	**split_with_quotes(char *cmd)
 	int		i;
 
 	i = 0;
-
-
-	// DEBUGGING
-	ft_putstr_fd("\n=== Split Debug ===\n", 2);
-    ft_putstr_fd("Splitting command: ", 2);
-    ft_putstr_fd(cmd, 2);
-    ft_putstr_fd("\n", 2);
-
-
-
 	args = ft_split(cmd, ' ');
-
-
-	// DEBUGGING
-	ft_putstr_fd("After split:\n", 2);
-	while (args && args[i])
-    {
-        ft_putstr_fd("[", 2);
-        ft_putstr_fd(args[i], 2);
-        ft_putstr_fd("]\n", 2);
-        i++;
-    }
-    ft_putstr_fd("=================\n", 2);
-
-
-
-
-
 	while (args[i])
 	{
 		if (is_quote(args[i][0]))

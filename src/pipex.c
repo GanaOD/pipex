@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/18 15:18:08 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 17:45:39 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ void	init_pipex(t_pipex *pipex, char **argv, char **envp)
 int main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;
+	int		status;
 
 	// Validate nr. of arguments
 	if (argc != 5)
@@ -59,6 +60,7 @@ int main(int argc, char **argv, char **envp)
 	// Params valid, now initialise pipex
 	init_pipex(&pipex, argv, envp);
 
+	// Parsing module
 	if (!parse_commands(&pipex))
 		return (error_handler("Command parsing failed"));
 
@@ -73,22 +75,31 @@ int main(int argc, char **argv, char **envp)
 	if (pipex.pid1 == 0)	// 1st child
 		handle_first_child(&pipex);
 
-	// 2nd fork
+	// Wait for first child, check its status
+	if (safe_waitpid(pipex.pid1, &status, 0) == -1)
+		return (error_handler("First wait failed"));
+	if (WEXITSTATUS(status) != 0) // if 1st child exited with error
+	{
+		cleanup_pipex(&pipex);
+		exit(WEXITSTATUS(status));
+	}
+
+	// 2nd child creation if 1st succeeded
 	pipex.pid2 = safe_fork();
 	if (pipex.pid2 == -1)
 		return (error_handler("Second fork failed"));
 	if (pipex.pid2 == 0)	// 2nd child
 		handle_second_child(&pipex);
 
-	// Parent process
+	// Parent process cleanup
 	// Close pipe ends in parent: not needed
 	safe_close(pipex.pipe[0]);
 	safe_close(pipex.pipe[1]);
 
-	// Wait for both children to finish
-	safe_waitpid(pipex.pid1, NULL, 0);
-	safe_waitpid(pipex.pid2, NULL, 0);
+	// Wait for 2nd children to finish
+	if (safe_waitpid(pipex.pid2, NULL, 0) == -1)
+		return (error_handler("Second wait failed"));
 
 	cleanup_pipex(&pipex);
-	return (0);
+	return (WEXITSTATUS(status));
 }

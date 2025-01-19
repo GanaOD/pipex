@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 14:06:31 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 18:04:16 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ char	*find_command_path(char *cmd, char **envp);
 // add const keyword back to char * param in split_with_quotes
 char	**split_with_quotes(char *cmd);
 int		is_quote(char c);
-char		*remove_quotes(char *arg);
+char	*remove_quotes(char *arg);
 
 
 

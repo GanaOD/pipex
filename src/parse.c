@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/18 12:50:25 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 13:56:05 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,15 @@ int parse_command(t_command *cmd, char **envp)
 	if (!cmd || !cmd->raw_cmd)
 		return (0);
 
+
+	// DEBUGGING
+	ft_putstr_fd("\n=== Parsing Command ===\n", 2);
+    ft_putstr_fd("Raw command: ", 2);
+    ft_putstr_fd(cmd->raw_cmd, 2);
+    ft_putstr_fd("\n", 2);
+
+
+
 	// Split raw command string into arguments, handling quotes
 	cmd->args = split_with_quotes(cmd->raw_cmd);
 	if (!cmd->args || !cmd->args[0])
@@ -79,6 +88,14 @@ int parse_command(t_command *cmd, char **envp)
         cmd->args = NULL;
         return (0);
     }
+
+
+	// DEBUGGING
+	ft_putstr_fd("Found path: ", 2);
+    ft_putstr_fd(cmd->path ? cmd->path : "NULL", 2);
+    ft_putstr_fd("\n==================\n", 2);
+
+
 
     return (1);
 }

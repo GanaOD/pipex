@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/18 13:08:25 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/18 15:22:37 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,7 +34,7 @@ CC = cc
 
 # Compilation flags as given in subject
 CFLAGS = -Wall -Wextra -Werror
-
+CFLAGS += 
 
 # Extra debug flags
 DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer -fsanitize=address
@@ -55,7 +55,7 @@ INCLUDES = -I $(INC_DIR) -I libft
 
 # Core functionality
 SRC_FILES = pipex.c parse.c child.c execute.c \
-			utils_error_handling.c utils_parse.c \
+			utils_error_handling.c utils_parsing.c \
 			utils_system_calls.c utils_cleanup.c
 
 
@@ -123,6 +123,10 @@ clean:
 	@rm -rf $(OBJ_DIR)
 	@make -C $(LIBFT_DIR) clean
 	@echo "$(GREEN)Object files cleaned!$(RESET)"
+
+clean_debug:
+	@rm -rf $(OBJ_DIR)/*_debug.o
+	@echo "$(GREEN)Debug objects cleaned!$(RESET)"
 
 fclean: clean
 	@echo "$(RED)Removing executable...$(RESET)"

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 12:26:07 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/18 13:06:47 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 14:04:59 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,27 +21,64 @@ char	*remove_quotes(char *arg)
 
 	i = 0;
 	len = ft_strlen(arg);
+	if (!arg || len < 2)
+		return (arg);
 	new_arg = malloc(len - 1);
-
+	if (!new_arg)
+		return (NULL);
 	// Skip quote at beginning
 	while (arg[i + 1] != '\0')
 	{
 		new_arg[i] = arg[i + 1];
-		i++:
+		i++;
 	}
 	new_arg[i] = '\0';
 	free(arg);
 	return (new_arg);
 }
 
+// Check if char is a quote
+int	is_quote(char c)
+{
+	return ((c == '"') || (c == '\''));
+}
+
 // Split cmd string & handle quotes
-char	**split_with_quotes(const char *cmd)
+// put const keyword back to char * param after removing debug prints with ft_putstr_fd
+char	**split_with_quotes(char *cmd)
 {
 	char	**args;
 	int		i;
 
 	i = 0;
+
+
+	// DEBUGGING
+	ft_putstr_fd("\n=== Split Debug ===\n", 2);
+    ft_putstr_fd("Splitting command: ", 2);
+    ft_putstr_fd(cmd, 2);
+    ft_putstr_fd("\n", 2);
+
+
+
 	args = ft_split(cmd, ' ');
+
+
+	// DEBUGGING
+	ft_putstr_fd("After split:\n", 2);
+	while (args && args[i])
+    {
+        ft_putstr_fd("[", 2);
+        ft_putstr_fd(args[i], 2);
+        ft_putstr_fd("]\n", 2);
+        i++;
+    }
+    ft_putstr_fd("=================\n", 2);
+
+
+
+
+
 	while (args[i])
 	{
 		if (is_quote(args[i][0]))
@@ -51,7 +88,5 @@ char	**split_with_quotes(const char *cmd)
 	}
 	return (args);
 }
-
-// Check if char is a quote
-static bool	is_quote(char c)
-	return ((c == '"') || (c == '\''));
+// functionality still to add: handling for unbalanced quotes
+// E.g. track whether quotes are properly closed, return error if not

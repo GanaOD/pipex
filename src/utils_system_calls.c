@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 16:14:23 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/18 10:04:05 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/19 14:16:02 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ int safe_close(int fd)
 		perror("close");
 		return (-1);
 	}
-	printf("Debug: safely closed\n");
+	ft_putstr_fd("Debug: safely closed\n", 2);
 	return (0);
 }
 

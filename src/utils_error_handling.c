@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:05:16 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/17 19:08:23 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/18 15:17:09 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void	exit_error(char *msg)
 {
 	if (msg)
 	{
+		ft_putstr_fd("pipex: ", STDERR_FILENO);
+		ft_putendl_fd(msg, STDERR_FILENO);
 		perror(msg);
 		exit(EXIT_FAILURE);
 	}

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 15:06:02 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 17:39:38 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,9 @@ static char	*find_command_path(char *cmd, char **envp)
 		free(path_join);
 
         // Check if file exists and is executable
-        if (access(full_path, F_OK | X_OK) == 0)
-        {
-			// Free paths array but keep successful full_path
-			ft_free_array(paths);
-			return (full_path);
-		}
-		free(full_path);
-		i++;
+        access(full_path, F_OK | X_OK);
+		ft_free_array(paths);
+		return (full_path);
     }
 	ft_free_array(paths);
 	return (NULL);

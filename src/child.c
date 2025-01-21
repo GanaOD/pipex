@@ -6,12 +6,11 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 18:43:13 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 14:56:46 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 16:24:17 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
 
 void	handle_first_child(t_pipex *pipex)
 {

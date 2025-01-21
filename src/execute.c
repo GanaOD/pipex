@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:40:24 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 15:22:20 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 17:13:51 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,24 +19,34 @@
 
 static int	handle_execution_error(t_command *cmd)
 {
-	// Format error prefix
-	ft_putstr_fd("pipex: ", STDERR_FILENO);
-    if (cmd && cmd->args && cmd->args[0])
-    {
-        ft_putstr_fd(cmd->args[0], STDERR_FILENO);
-        ft_putstr_fd(": ", STDERR_FILENO);
-    }
+	char	*cmd_name;
+	cmd_name = NULL;
 
-    // Handle specific error cases
+	// Extract cmd name if available
+    if (cmd && cmd->args && cmd->args[0])
+		cmd_name = cmd->args[0];
+
+	// // Error prefix formatting (all to stdout for pipe)
+	// ft_putstr_fd("pipex: ", STDOUT_FILENO);
+	// if (cmd_name)
+    // {
+    //     ft_putstr_fd(cmd_name, STDOUT_FILENO);
+    //     ft_putstr_fd(": ", STDOUT_FILENO);
+    // }
+
+    // Handle specific error cases. All to stdout to match bash
     if (errno == ENOENT)
     {
-        ft_putendl_fd("Command not found", STDERR_FILENO);
-        exit(127);
+        ft_putstr_fd("Command not found", STDOUT_FILENO);
+        if (cmd_name)
+			ft_putstr_fd(cmd_name, STDOUT_FILENO);
+		ft_putstr_fd("\n", STDOUT_FILENO);
+		return (127);
     }
     else if (errno == EACCES)
     {
         ft_putendl_fd("Permission denied", STDERR_FILENO);
-        exit(126);
+        return (126);
     }
     else if (errno == EISDIR)
     {
@@ -46,13 +56,13 @@ static int	handle_execution_error(t_command *cmd)
     else if (errno == ENOMEM)
     {
         ft_putendl_fd("Cannot allocate memory", STDERR_FILENO);
-        exit(1);
+        return (1);
     }
     else
     {
         // For any other errors, use perror's standard messages
         perror("");
-        exit(1);
+        return (1);
     }
 }
 

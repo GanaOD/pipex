@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 12:14:51 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 15:05:21 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ typedef struct s_command
 	char	*path;		// Full path to executable
 }	t_command;
 
-// Main structure holding program state
+// Main structure holding program state & resources
 typedef struct s_pipex
 {
 	int			pipe[2];	// Pipe file descriptors
@@ -58,51 +58,49 @@ typedef struct s_pipex
 
 
 
+
 /* 💫	CORE FUNCTION PROTOTYPES	💫 */
 
-// Important / close to main program flow
-// Core pipe handling, initialisation & setup (pipex.c)
-void	init_pipex(t_pipex *pipex, char **argv, char **envp);
+
+// 🌲	Core Pipeline Functions
 
 
-// Command/argument parsing & path resolution
-// (parsing.c) Parsing logic flow:
+// Command parsing and validation
 int		parse_commands(t_pipex *pipex);
-int		init_command(t_command *cmd, char *raw_cmd);
-int		parse_command(t_command *cmd, char **envp);
-char	*find_command_path(char *cmd, char **envp);
+char	**split_with_quotes(const char *cmd);
 
-// (utils_parsing.c) Helper utils for specific parsing mechanics
-// add const keyword back to char * param in split_with_quotes
-char	**split_with_quotes(char *cmd);
-int		is_quote(char c);
-char	*remove_quotes(char *arg);
+// Process handling
+void	handle_first_child(t_pipex *pipex);
+void	handle_second_child(t_pipex *pipex);
 
-
-// Child process handling functions (child.c)
-void 	handle_first_child(t_pipex *pipex);
-void 	handle_second_child(t_pipex *pipex);
-
-
-// Command execution logic (execute.c)
+// Command execution
 int		execute_first_command(t_command *cmd, char **envp);
 void	execute_second_command(t_command *cmd, char **envp);
 
 
-// Error handling (utils_error_handling.c)
+
+// 🌲	Error Handling & System Calls
+
+// Error management
 void	exit_error(char *msg);
 int		error_handler(char *msg);
 
-// (utils_system_calls.c) Error-handling: system call wrappers
-int 	safe_close(int fd);
+// System call wrappers
+int		safe_close(int fd);
 pid_t	safe_fork(void);
-int 	safe_open(const char *path, int flags, mode_t mode);
+int		safe_open(const char *path, int flags, mode_t mode);
 int		safe_pipe(int pipefd[2]);
 pid_t	safe_waitpid(pid_t pid, int *status, int options);
 
-// Cleanup (utils_cleanup.c)
-void 	cleanup_pipex(t_pipex *pipex);
-void	cleanup_command(t_command *cmd);
+
+
+
+// 🌲	Resource Management
+
+// Cleanup functions
 void	ft_free_array(char **arr);
+void	cleanup_command(t_command *cmd);
+void	cleanup_pipex(t_pipex *pipex);
+
 
 #endif

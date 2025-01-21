@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 16:14:23 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 17:41:28 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 15:01:31 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ System-level error reporting: wrapping around system calls: forking, opening fil
 		- We can't meaningfully return an error status since execve replaces the process on success
 */
 
-int safe_close(int fd)
+int	safe_close(int fd)
 {
 	int	ret;
 	ret = close(fd);
@@ -48,10 +48,7 @@ int	safe_open(const char *path, int flags, mode_t mode)
 {
 	int fd = open(path, flags, mode);
 	if (fd == -1)
-	{
-		perror(path);
 		return (-1);
-	}
 	return (fd);
 }
 

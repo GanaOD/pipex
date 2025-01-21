@@ -6,11 +6,12 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 11:31:34 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 14:48:56 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
+
 
 /*
 Initialise pipex structure with starting values & command configurations
@@ -18,7 +19,7 @@ Initialise pipex structure with starting values & command configurations
 @param argv:	array of command-line arguments passed at execution
 @param envp:	array of environment variables from shell environment
 */
-void	init_pipex(t_pipex *pipex, char **argv, char **envp)
+static void	init_pipex(t_pipex *pipex, char **argv, char **envp)
 {
 	// Initialize file descriptors to -1 (invalid/unused state)
 	// to help error checking & cleanup later
@@ -43,6 +44,7 @@ void	init_pipex(t_pipex *pipex, char **argv, char **envp)
 	pipex->cmd2.args = NULL;
 	pipex->cmd2.path = NULL;
 }
+
 
 // Handles main program flow: process creation, management
 int main(int argc, char **argv, char **envp)
@@ -76,16 +78,7 @@ int main(int argc, char **argv, char **envp)
 	if (pipex.pid1 == 0)	// 1st child
 		handle_first_child(&pipex);
 
-	// Wait for first child, check its status
-	if (safe_waitpid(pipex.pid1, &status, 0) == -1)
-		return (error_handler("First wait failed"));
-	if (WEXITSTATUS(status) != 0) // if 1st child exited with error
-	{
-		cleanup_pipex(&pipex);
-		exit(WEXITSTATUS(status));
-	}
-
-	// 2nd child creation if 1st succeeded
+	// 2nd fork
 	pipex.pid2 = safe_fork();
 	if (pipex.pid2 == -1)
 		return (error_handler("Second fork failed"));
@@ -97,10 +90,14 @@ int main(int argc, char **argv, char **envp)
 	safe_close(pipex.pipe[0]);
 	safe_close(pipex.pipe[1]);
 
-	// Wait for 2nd children to finish
-	if (safe_waitpid(pipex.pid2, NULL, 0) == -1)
+	// Wait for both children & preserve cmd1's status
+	if (safe_waitpid(pipex.pid2, &status, 0) == -1)
 		return (error_handler("Second wait failed"));
 
 	cleanup_pipex(&pipex);
+
+	// Return exit status of cmd1 (like bash)
 	return (WEXITSTATUS(status));
+
+	return (1);
 }

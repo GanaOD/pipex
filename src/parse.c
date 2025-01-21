@@ -6,14 +6,30 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 09:38:39 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 15:06:02 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+/*
+** Initialize a command structure with a raw command string
+** Returns 1 on success, 0 on failure
+*/
+static int init_command(t_command *cmd, char *raw_cmd)
+{
+	if (!raw_cmd)
+		return (0);
+	cmd->raw_cmd = raw_cmd;
+	cmd->args = NULL;
+	cmd->path = NULL;
+	return (1);
+}
+
+
+
 // Find full path of command by searching system's PATH variable
-char	*find_command_path(char *cmd, char **envp)
+static char	*find_command_path(char *cmd, char **envp)
 {
     char	**paths;
 	char	*path_join;
@@ -56,12 +72,14 @@ char	*find_command_path(char *cmd, char **envp)
 	return (NULL);
 }
 
+
+
 /*
 ** Parse a command string into arguments
 ** Handles both normal & quotes args
 ** Returns 1 on success, 0 on failure
 */
-int parse_command(t_command *cmd, char **envp)
+static int parse_command(t_command *cmd, char **envp)
 {
 	if (!cmd || !cmd->raw_cmd)
 		return (0);
@@ -83,22 +101,8 @@ int parse_command(t_command *cmd, char **envp)
 }
 
 /*
-** Initialize a command structure with a raw command string
-** Returns 1 on success, 0 on failure
-*/
-int init_command(t_command *cmd, char *raw_cmd)
-{
-	if (!raw_cmd)
-		return (0);
-	cmd->raw_cmd = raw_cmd;
-	cmd->args = NULL;
-	cmd->path = NULL;
-	return (1);
-}
-
-/*
 ** Parse both commands in pipex structure
-** Returns 1 if both commands parsed successfully, 0 otherwise
+** Validation: returns 1 if both commands parsed successfully, 0 otherwise
 */
 int	parse_commands(t_pipex *pipex)
 {

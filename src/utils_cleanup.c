@@ -6,12 +6,13 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 19:04:28 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/17 19:05:25 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 15:03:44 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
+// Free null-terminated string array
 void	ft_free_array(char **arr)
 {
 	int i;
@@ -27,7 +28,7 @@ void	ft_free_array(char **arr)
 	free(arr);
 }
 
-// freeing memory malloced by ft_split
+// Clean up single command resources (freeing memory malloced by ft_split)
 // Setting freed pointers to NULL: defensive programming, preventing "dangling pointers"
 void	cleanup_command(t_command *cmd)
 {
@@ -57,7 +58,8 @@ void	cleanup_command(t_command *cmd)
 	cmd->raw_cmd = NULL;
 }
 
-void cleanup_pipex(t_pipex *pipex)
+// Clean up all program resources
+void	cleanup_pipex(t_pipex *pipex)
 {
 	if (!pipex)
 		return;

@@ -6,13 +6,13 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:05:16 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/18 15:17:09 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 15:00:49 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-// for validation and logic errors (non-fatal errors)
+// for validation and logic errors: print message & continue (non-fatal errors)
 int	error_handler(char *msg)
 {
 	ft_putstr_fd("Error: ", 2);
@@ -20,7 +20,7 @@ int	error_handler(char *msg)
 	return (1);
 }
 
-// for system call failures where errno is set (fatal errors)
+// for system call failures where errno is set: print & exit (fatal errors)
 void	exit_error(char *msg)
 {
 	if (msg)

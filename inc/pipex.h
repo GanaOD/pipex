@@ -6,21 +6,32 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 18:04:16 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 12:14:51 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PIPEX_H
 # define PIPEX_H
 
-// STRUCTURE THESE TOO BY TYPE
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include <sys/wait.h>
-# include <errno.h>
-# include "libft.h"
-# include <ctype.h>
+
+/* 💫	Includes ordered by type	💫 */
+
+/* Standard C library headers */
+# include <stdlib.h>     // malloc, free, exit
+# include <unistd.h>     // fork, pipe, execve, etc
+# include <errno.h>      // errno, error constants
+
+/* POSIX/System headers */
+# include <fcntl.h>      // open, constants
+# include <sys/wait.h>   // wait, waitpid
+# include <ctype.h>      // isspace, etc
+
+/* Project headers */
+# include "libft.h"		// my library functions
+
+
+
+/* 💫	DATA STRUCTURES	💫 */
 
 // Structure for individual commands
 typedef struct s_command
@@ -45,6 +56,10 @@ typedef struct s_pipex
 }	t_pipex;
 
 
+
+
+/* 💫	CORE FUNCTION PROTOTYPES	💫 */
+
 // Important / close to main program flow
 // Core pipe handling, initialisation & setup (pipex.c)
 void	init_pipex(t_pipex *pipex, char **argv, char **envp);
@@ -64,15 +79,14 @@ int		is_quote(char c);
 char	*remove_quotes(char *arg);
 
 
-
 // Child process handling functions (child.c)
 void 	handle_first_child(t_pipex *pipex);
 void 	handle_second_child(t_pipex *pipex);
 
 
 // Command execution logic (execute.c)
-void	execute_command(t_command *cmd, char **envp);
-
+int		execute_first_command(t_command *cmd, char **envp);
+void	execute_second_command(t_command *cmd, char **envp);
 
 
 // Error handling (utils_error_handling.c)

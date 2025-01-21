@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 17:45:39 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 11:31:34 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,7 @@ void	init_pipex(t_pipex *pipex, char **argv, char **envp)
 	pipex->cmd2.path = NULL;
 }
 
+// Handles main program flow: process creation, management
 int main(int argc, char **argv, char **envp)
 {
 	t_pipex	pipex;

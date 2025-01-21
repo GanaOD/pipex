@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/19 16:45:43 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/21 09:38:39 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ int parse_command(t_command *cmd, char **envp)
 {
 	if (!cmd || !cmd->raw_cmd)
 		return (0);
-	
+
 	// Split raw command string into arguments, handling quotes
 	cmd->args = split_with_quotes(cmd->raw_cmd);
 	if (!cmd->args || !cmd->args[0])
@@ -102,21 +102,15 @@ int init_command(t_command *cmd, char *raw_cmd)
 */
 int	parse_commands(t_pipex *pipex)
 {
-	if (!init_command(&pipex->cmd1, pipex->argv[2]) ||
-		 !init_command(&pipex->cmd2, pipex->argv[3]))
-		return (0);
+	// Initialize both commands
+    if (!init_command(&pipex->cmd1, pipex->argv[2]) ||
+        !init_command(&pipex->cmd2, pipex->argv[3]))
+        return (0);
 
-	if (!parse_command(&pipex->cmd1, pipex->envp))
-	{
-		cleanup_command(&pipex->cmd1);
-		return (0);
-	}
-	if (!parse_command(&pipex->cmd2, pipex->envp))
-	{
-		cleanup_command(&pipex->cmd1);
-		cleanup_command(&pipex->cmd2);
-		return (0);
-	}
+    // Try to parse both commands but don't fail completely if one fails
+    parse_command(&pipex->cmd1, pipex->envp);
+    parse_command(&pipex->cmd2, pipex->envp);
 
-	return (1);
+    // Return success even if commands failed - failures handled in execution
+    return (1);
 }

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 14:48:56 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 09:26:50 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,7 @@ Initialise pipex structure with starting values & command configurations
 */
 static void	init_pipex(t_pipex *pipex, char **argv, char **envp)
 {
-	// Initialize file descriptors to -1 (invalid/unused state)
-	// to help error checking & cleanup later
+	// Initialize file descriptors to -1 (invalid/unused state) to help error checking & cleanup later
 	pipex->infile = -1;
 	pipex->outfile = -1;
 	pipex->pipe[0] = -1;

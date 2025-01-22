@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:40:24 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 17:13:51 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 11:16:30 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,18 +26,16 @@ static int	handle_execution_error(t_command *cmd)
     if (cmd && cmd->args && cmd->args[0])
 		cmd_name = cmd->args[0];
 
-	// // Error prefix formatting (all to stdout for pipe)
+	// // Error prefix formatting (all to stdout for pipe) & make sure ends with \n
 	// ft_putstr_fd("pipex: ", STDOUT_FILENO);
 	// if (cmd_name)
-    // {
     //     ft_putstr_fd(cmd_name, STDOUT_FILENO);
-    //     ft_putstr_fd(": ", STDOUT_FILENO);
-    // }
+    // ft_putstr_fd("\n", STDOUT_FILENO);
 
     // Handle specific error cases. All to stdout to match bash
     if (errno == ENOENT)
     {
-        ft_putstr_fd("Command not found", STDOUT_FILENO);
+        ft_putstr_fd("Command not found: ", STDOUT_FILENO);
         if (cmd_name)
 			ft_putstr_fd(cmd_name, STDOUT_FILENO);
 		ft_putstr_fd("\n", STDOUT_FILENO);

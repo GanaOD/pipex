@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 18:43:13 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 16:24:17 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 11:28:25 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,8 @@ void	handle_first_child(t_pipex *pipex)
 		ft_putstr_fd("pipex: ", 2);
 		if (errno == EACCES) // permission denied error
 			ft_putstr_fd("permission denied: ", 2);
+		else if (errno == ENOENT)
+            ft_putstr_fd("no such file or directory: ", 2);
 		ft_putendl_fd(pipex->argv[1], 2);
 		exit(1); // exit with status 1 like shell
 	}

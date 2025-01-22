@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 15:05:21 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 09:26:04 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,17 +17,17 @@
 /* 💫	Includes ordered by type	💫 */
 
 /* Standard C library headers */
-# include <stdlib.h>     // malloc, free, exit
-# include <unistd.h>     // fork, pipe, execve, etc
-# include <errno.h>      // errno, error constants
+# include <stdlib.h>
+# include <unistd.h>
+# include <errno.h>
 
 /* POSIX/System headers */
-# include <fcntl.h>      // open, constants
-# include <sys/wait.h>   // wait, waitpid
-# include <ctype.h>      // isspace, etc
+# include <fcntl.h>
+# include <sys/wait.h>
+# include <ctype.h>
 
 /* Project headers */
-# include "libft.h"		// my library functions
+# include "libft.h"
 
 
 

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 17:39:38 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 10:40:06 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ static char	*find_command_path(char *cmd, char **envp)
     char	**paths;
 	char	*path_join;
     char	*full_path;
+	char	*valid_path;
     int i;
 
     // Find PATH in environment variables
@@ -42,12 +43,12 @@ static char	*find_command_path(char *cmd, char **envp)
         i++;
     // If no PATH found, command won't be found
     if (!envp[i])
-        return (NULL);
+        return (ft_strdup(cmd)); // if not PATH, return just cmd
 
     // Split PATH into individual directories (e.g., "/bin:/usr/bin" -> ["/bin", "/usr/bin"])
     paths = ft_split(envp[i] + 5, ':');
 	if (!paths)
-		return (NULL);
+		return (ft_strdup(cmd)); // if split fails, return just cmd
 
     // Try each directory
     i = 0;
@@ -59,12 +60,17 @@ static char	*find_command_path(char *cmd, char **envp)
 		free(path_join);
 
         // Check if file exists and is executable
-        access(full_path, F_OK | X_OK);
-		ft_free_array(paths);
-		return (full_path);
+        if (access(full_path, F_OK | X_OK) == 0)
+		{
+			valid_path = full_path;
+			ft_free_array(paths);
+			return (valid_path);
+		}
+		free (full_path);
+		i++;
     }
 	ft_free_array(paths);
-	return (NULL);
+	return (ft_strdup(cmd)); // no valid path found, return just cmd
 }
 
 

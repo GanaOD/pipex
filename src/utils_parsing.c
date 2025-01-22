@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 12:26:07 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 14:56:09 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 15:52:04 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ static char	*remove_quotes(char *arg)
 	new_arg = malloc(len - 1);
 	if (!new_arg)
 		return (NULL);
-	// Skip quote at beginning
 	while (arg[i + 1] != '\0')
 	{
 		new_arg[i] = arg[i + 1];
@@ -42,7 +41,6 @@ static char	*remove_quotes(char *arg)
 	free(arg);
 	return (new_arg);
 }
-
 
 // Split cmd string & handle quotes
 char	**split_with_quotes(const char *cmd)
@@ -55,7 +53,6 @@ char	**split_with_quotes(const char *cmd)
 	while (args[i])
 	{
 		if (is_quote(args[i][0]))
-			// remove quotes from args
 			args[i] = remove_quotes(args[i]);
 		i++;
 	}

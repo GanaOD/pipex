@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 19:04:28 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 11:54:21 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 15:55:58 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,11 @@
 // Free null-terminated string array
 void	ft_free_array(char **arr)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	if (!arr)
-		return;
+		return ;
 	while (arr[i])
 	{
 		free(arr[i]);
@@ -34,9 +34,7 @@ void	cleanup_command(t_command *cmd)
 	int	i;
 
 	if (!cmd)
-		return;
-
-	// Free argument array and its contents
+		return ;
 	if (cmd->args)
 	{
 		i = 0;
@@ -45,15 +43,11 @@ void	cleanup_command(t_command *cmd)
 		free(cmd->args);
 		cmd->args = NULL;
 	}
-
-	// Free command path if allocated
 	if (cmd->path)
 	{
 		free(cmd->path);
 		cmd->path = NULL;
 	}
-
-	// Don't free raw_cmd as it points to argv
 	cmd->raw_cmd = NULL;
 }
 
@@ -61,9 +55,7 @@ void	cleanup_command(t_command *cmd)
 void	cleanup_pipex(t_pipex *pipex)
 {
 	if (!pipex)
-		return;
-
-	// Close file descriptors if open
+		return ;
 	if (pipex->infile != -1)
 		close(pipex->infile);
 	if (pipex->outfile != -1)
@@ -72,15 +64,11 @@ void	cleanup_pipex(t_pipex *pipex)
 		close(pipex->pipe[0]);
 	if (pipex->pipe[1] != -1)
 		close(pipex->pipe[1]);
-
-	// Cleanup commands
 	cleanup_command(&pipex->cmd1);
 	cleanup_command(&pipex->cmd2);
-
-	// Reset all pointers and file descriptors
 	pipex->infile = -1;
 	pipex->outfile = -1;
 	pipex->pipe[0] = -1;
 	pipex->pipe[1] = -1;
-	pipex->envp = NULL;  // Don't free as it's from main
+	pipex->envp = NULL;
 }

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 19:04:28 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 15:03:44 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 11:54:21 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ void	ft_free_array(char **arr)
 }
 
 // Clean up single command resources (freeing memory malloced by ft_split)
-// Setting freed pointers to NULL: defensive programming, preventing "dangling pointers"
 void	cleanup_command(t_command *cmd)
 {
 	int	i;

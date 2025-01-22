@@ -6,19 +6,16 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 16:14:23 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/21 15:01:31 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 11:53:38 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
 /*
-System-level error reporting: wrapping around system calls: forking, opening file, pipe creation
+System-level error reporting - wrapping around some system calls
 	- dup(2) error-handling when called (handle_child & _parent)
-	- No safe_execve needed:
-		- execve's error handling is unique - we detect failure by reaching the next line
-		- The function is only used in one place
-		- We can't meaningfully return an error status since execve replaces the process on success
+	- No safe_execve needed, failure detected by reaching the next line
 */
 
 int	safe_close(int fd)

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 09:26:04 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/22 11:45:37 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define PIPEX_H
 
 
-/* 💫	Includes ordered by type	💫 */
+/* 💫	INCLUDES	💫 */
 
 /* Standard C library headers */
 # include <stdlib.h>
@@ -33,7 +33,7 @@
 
 /* 💫	DATA STRUCTURES	💫 */
 
-// Structure for individual commands
+// for individual commands
 typedef struct s_command
 {
 	char	*raw_cmd;	// Original command string
@@ -63,7 +63,6 @@ typedef struct s_pipex
 
 
 // 🌲	Core Pipeline Functions
-
 
 // Command parsing and validation
 int		parse_commands(t_pipex *pipex);

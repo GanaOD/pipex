@@ -1,19 +1,11 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    README                                       		:+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created by go-donne                               #+#    #+#              #
-#    Updated by go-donne         					  ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-
 TEST DOCUMENTATION
 
 Test suite: basic functionality to compare my pipex program with bash's piping functionality
+
+
+🌌 /infiles
+🌌 commands.txt
+
 
 
 
@@ -23,40 +15,30 @@ Test suite: basic functionality to compare my pipex program with bash's piping f
 Content:
 Savitri, Sri Auro Bindo
 
-
+Infiles with reduced permissions not submitted
 
 
 
 
 🌌	commands.txt
 
+Structure of file:
 
-⭐	Main test categories:
-Core Functionality: Validates basic requirements
-Edge Cases: Tests boundary conditions
-Resource Handling: Verifies handling of varying data loads
-Permission & Access Control: Tests security boundaries
-Error Handling: Validates graceful failure
-Memory Management: Ensures resource cleanup
-Special files: testing system device interfaces
-
+⭐	Main test categories
 
 🔥	Subcategories
 
-
 # Test case description
 
+🔥🔥🔥	Specific test
 
 🌿	Bash command syntax
 (General: < infile cmd1 | cmd2 > outfile)
 
-<	: input redirection operator. Tells bash to use the content of infile as stdin for the following command (like my dup2 in pipex that redirects stdin)
-
-
 🐚	: bash behaviour that must be emulated
 
+⚡	: My pipex program: command, explanation...
 
-⚡	: My pipex program
 
 
 
@@ -67,19 +49,20 @@ Special files: testing system device interfaces
 
 
 Missing test cases:
-(for next iteration through project (v2))
+- in addition to un-used tests in commands.txt
+- for v2 of project
 
 
 Command Syntax & Structure
 
 
-Missing: Commands with multiple spaces/tabs between arguments
-Missing: Commands with quotes within quotes (nested quotes)
+Commands with multiple spaces/tabs between arguments
+Commands with quotes within quotes (nested quotes)
 Unbalanced quotes
-Missing: Commands with escaped characters
-Missing: Commands with environment variables ($PATH, $HOME, etc.)
-Missing: Commands with relative paths (./command, ../command)
-Missing: Commands with absolute paths (/bin/cat, /usr/bin/wc)
+Commands with escaped characters
+Commands with environment variables ($PATH, $HOME, etc.)
+Commands with relative paths (./command, ../command)
+Commands with absolute paths (/bin/cat, /usr/bin/wc)
 
 
 

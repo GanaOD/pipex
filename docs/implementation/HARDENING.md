@@ -1,1 +1,0 @@
-Security hardening guidelines

@@ -1,0 +1,142 @@
+To be integrated into commands.txt
+
+Considering command combinations that would thoroughly test pipex:
+
+🔥
+Text Processing Commands:
+
+🔥🔥
+# grep variations
+./pipex infile "grep -i pattern" "wc -l" outfile     # Case-insensitive search
+
+./pipex test/infiles/large.txt "grep -v the" "cat" outfile     # Inverse match
+	-v: Inverts the match - shows all lines that do NOT match the pattern
+	Pipe them through cat (which just passes them through unchanged)
+
+./pipex infile "grep -c pattern" "cat" outfile       # Count matches
+
+
+🔥🔥
+# sed operations
+./pipex infile "sed 's/old/new/g'" "cat" outfile     # Global replacement
+./pipex infile "sed '1d'" "cat" outfile              # Delete first line
+
+
+
+🔥🔥
+# awk processing
+./pipex infile "awk '{print $1}'" "sort" outfile     # Print first column
+./pipex infile "awk 'NR>1'" "cat" outfile            # Skip first line
+
+
+🔥🔥
+# tr processing
+
+# Keep only digits
+./pipex infile "tr -cd '[:digit:]'" "cat" outfile
+
+# Replace non-letters with underscores
+./pipex infile "tr -c '[:alpha:]' '_'" "cat" outfile
+
+# Delete all whitespace characters
+./pipex infile "tr -d '[:space:]'" "cat" outfile
+
+./pipex test/infiles/single_line.txt "tr -cd 'he'" "cat" outfile
+	The tr command with the -c (complement) flag works at the character level. This is different from grep's -v which works at the line level.
+	-c: invert/complement the set (meaning "match everything EXCEPT these characters")
+	-d: delete the matched characters
+
+
+
+🔥🔥
+Character-level manipulation and substitution
+
+see both upper/lowercase AND replace other characters with %
+./pipex test/infiles/single_line.txt "tr -c 'HhEe' %" "cat" outfile
+	For input "Alone he moved watched by the infinity", this would:
+		Keep both 'h' and 'e' (upper and lowercase)
+		Replace everything else with %
+	Output: %%%%e%he%%%e%%%%%he%%%he%%%%%%%%
+
+
+
+
+
+🔥
+File Content Manipulation:
+
+🔥🔥
+# sort variations
+./pipex infile "sort" "uniq" outfile                 # Sort and get unique lines
+./pipex infile "sort -r" "cat" outfile               # Reverse sort
+./pipex infile "sort -n" "cat" outfile               # Numeric sort
+
+
+🔥🔥
+# cut operations
+
+🔥🔥🔥
+Field-based cutting:
+./pipex infile "cut -f1 -d' '" "sort" outfile        # Extract first field
+	cut: A command that cuts out selected portions of each line from a file
+	-d' ': The delimiter flag
+		-d specifies what character to use as the field separator
+		' ' (the space in quotes) means use space as the delimiter
+	-f1: The field flag
+		-f specifies which field(s) to select
+		1 means select the first field only
+	So this pipeline will:
+		cut -d' ' -f1: Split each line at spaces and take only the first "column"
+		sort: Sort these first words alphabetically
+DIDN'T WORK
+
+./pipex infile "cut -c1-10" "cat" outfile            # Extract characters 1-10
+
+
+
+
+Text Statistics:
+# wc variations
+./pipex infile "cat" "wc -w" outfile                 # Word count
+./pipex infile "cat" "wc -c" outfile                 # Character count
+./pipex infile "cat" "wc -m" outfile                 # Multi-byte char count
+
+# Combination counting
+./pipex infile "grep pattern" "wc -l" outfile        # Count matching lines
+
+
+
+
+
+Complex Data Processing:
+
+# Multiple transformations
+./pipex infile "tr '[:lower:]' '[:upper:]'" "sort -u" outfile  # Uppercase & unique
+./pipex infile "sed 's/^[[:space:]]*//'" "sort" outfile        # Trim leading spaces
+
+# Pattern matching with context
+./pipex infile "grep -A1 pattern" "cat" outfile      # Show match + next line
+./pipex infile "grep -B1 pattern" "cat" outfile      # Show match + previous line
+
+
+
+
+
+Special Character Handling:
+
+# Quote handling
+./pipex infile "grep '\"quoted text\"'" "cat" outfile  # Double quotes in command
+./pipex infile "grep 'text with spaces'" "cat" outfile # Spaces in pattern
+
+# Special characters
+./pipex infile "grep '^start'" "cat" outfile         # Line start anchor
+./pipex infile "grep 'end$'" "cat" outfile           # Line end anchor
+
+
+
+
+File System Commands:
+
+# Directory operations
+./pipex infile "ls -l" "grep ^d" outfile             # List directories
+./pipex infile "find . -type f" "wc -l" outfile      # Count files

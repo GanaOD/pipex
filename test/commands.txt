@@ -1,0 +1,340 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    commands.txt                                       :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/01/21 09:06:27 by go-donne          #+#    #+#              #
+#    Updated: 2025/01/25 17:04:20 by go-donne         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+⭐	CORE FUNCTIONALITY	⭐
+Basic Pipe Operations (1 pipe connecting 2 commands, testing data transformation & flow)
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+
+🔥🔥🔥
+./pipex test/infiles/single_line.txt "cat" "wc -l" output.txt
+Should output 1 line
+
+
+
+🔥🔥🔥
+⚡	./pipex test/infiles/single_line.txt "tr a-z A-Z" "cat" output.txt
+
+🐚
+	tr: translate chars
+	Convert line to uppercase
+
+🌿	< infile tr 'a-z' 'A-Z' | cat > outfile
+
+
+
+🔥🔥🔥
+
+./pipex test/infiles/single_line.txt "tr a-z A-Z" "rev" output.txt
+
+🐚	Converts text to uppercase then reverses each line
+
+
+
+
+🔥🔥🔥
+./pipex test/infiles/single_line.txt "tr -cd '[:alpha:]'" "tr -cd 'aeiou'" output.txt
+
+🌿	< infile tr -cd '[:alpha:]' | tr -cd 'aeiou' > outfile
+
+🐚: Keeps only letters then keeps only vowels
+Breakdown:
+cmd1:
+-c					complement (invert the selection)
+-d					delete (remove instead of translate)
+-cd '[:alpha:]'		delete everything EXCEPT (-c) alphabetic characters (in this case, just spaces)
+([:alnum:]			a-zA-Z0-9)
+
+Result: "Alonehemovedwatchedbytheinfinity"
+
+cmd2:
+tr -cd 'aeiou'		delete everything EXCEPT (-c) vowels
+Keeps only vowels
+Result should be: "oeeoeaeeiii"
+
+
+
+
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+⭐	EDGE CASES	⭐
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+
+🔥	Empty File Handling
+
+🔥🔥🔥
+./pipex test/infiles/empty.txt "cat" "wc -l" output.txt
+🐚	0 lines
+
+🔥🔥🔥
+./pipex test/infiles/empty.txt "grep anything" "wc -w" output.txt
+🐚	0 words
+
+
+
+🔥	Hidden Files
+
+🔥🔥🔥
+./pipex test/infiles/.hidden "cat" "wc -l" output.txt
+Basic hidden file reading
+
+🔥🔥🔥
+./pipex test/infiles/.hidden "grep spirit" "wc -l" output.txt
+Search in hidden file
+With my current .hidden content:
+	grepping "spirit": wc -l == 4
+	grepping "it": wc -l == 12
+
+(For searching for a pattern that does not occur, see error handling below)
+
+
+
+
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+
+⭐	RESOURCE HANDLING	⭐
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+🔥	Large File Processing
+
+🔥🔥🔥
+./pipex test/infiles/large.txt "cat" "head -n 10" output.txt
+Get first 10 lines
+
+🔥🔥🔥
+./pipex test/infiles/large.txt "tail -n 5" "sort" output.txt
+Sort last 5 lines
+
+
+
+
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+
+⭐	PERMISSION & ACCESS CONTROL	⭐
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+
+🔥	Input File Permissions
+
+
+🔥🔥🔥
+# Zero permissions
+
+🌿
+touch infile
+chmod 000 infile
+< infile cmd1 | cmd2 > outfile
+(where cmd1 & 2 are valid cmds)
+
+🐚	zsh: permission denied: infile
+
+⚡
+Set-up: chmod 000 test/infiles/permissions.txt
+Proof: ls -la test/infiles
+./pipex test/infiles/permissions.txt "cat" "wc -l" output.txt
+Custom error message from handle_first_child matches bash format (see below): pipex: permission denied: test/infiles/permissions.txt
+
+
+
+🔥🔥🔥
+# Executable-only
+
+chmod 111 test/infiles/exec_only.txt
+./pipex test/infiles/exec_only.txt "cat" "wc -l" output.txt
+
+🐚	Same output format as with zero permissions
+
+
+
+
+
+
+🔥	Output Directory Permissions
+
+🔥🔥🔥
+🌿
+mkdir -p readonly
+chmod 444 readonly
+< infile cat | wc -l > readonly/output.txt
+
+🐚	zsh: permission denied: readonly/output.txt
+
+⚡
+mkdir -p test/readonly
+chmod 444 test/readonly (r--r--r--)
+./pipex test/infiles/single_line.txt "cat" "wc -l" test/readonly/output.txt
+
+pipex: permission denied: test/readonly/output.txt
+
+
+
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+⭐	ERROR HANDLING	⭐
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+General behaviour: Pipe flow not exited: error messages passed through & operated on
+
+
+
+🔥	Non-existent Commands
+
+
+🔥🔥🔥
+# cmd1 non-existent, cmd2 valid
+
+🌿	< infile nonexistent | wc > output
+
+🐚
+< infile nonexistent	: redirects stdin from infile. Cmd1 fails & produces error message ("Command not found: nonexistent").
+This error message is passed into pipe (not stderr)
+Cmd2 operates on error message, passes output to outfile
+Hence with cmd2 == wc: output content:
+       1       4      31
+(from error message: "Command not found: nonexistent")
+
+⚡
+./pipex test/infiles/single_line.txt "nonexistent" "wc" output.txt
+
+
+
+🔥🔥🔥
+# cmd1 valid, cmd2 non-existent
+
+🌿	< infile cat | nonexistent > outfile
+
+🐚
+Error message written to stdout & ∴ outfile:
+Command not found: nonexistent
+
+⚡
+./pipex test/infiles/single_line.txt "cat" "nonexistent" output.txt
+
+
+
+
+🔥	Non-existent Files
+
+🌿
+< nonexistent cat | wc > outfile
+
+🐚
+zsh: no such file or directory: nonexistent
+
+⚡
+./pipex test/infiles/nonexistent.txt "cat" "wc" output.txt
+
+
+
+
+
+
+
+
+
+
+⚠️	⚠️	⚠️	⚠️
+CONTINUE HERE WITH v2. (all previous tests are ok, not all of the following verified)
+⚠️	⚠️	⚠️	⚠️
+
+
+
+
+🔥	Invalid Arguments to Commands
+
+./pipex test/infiles/single_line.txt "wc -invalid" "cat" output.txt
+
+
+
+
+🔥	Pattern Matching Edge Cases
+
+# Valid command that finds no matches
+
+./pipex test/infiles/.hidden "grep nonexistent_pattern" "wc -l" output.txt
+
+🐚	output 0, continue pipeline
+
+
+
+
+
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+⭐	SPECIAL FILES	⭐
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+
+🔥
+# Test with /dev/null
+
+🔥🔥🔥
+./pipex /dev/null "cat" "wc -l" output.txt
+🐚	0
+
+🔥🔥🔥
+./pipex test/infiles/single_line.txt "cat" "wc -l" /dev/null
+
+
+
+🔥
+# Test with /dev/zero
+
+🌿	< /dev/zero head -c 10 | xxd > outfile
+🐚	00000000: 0000 0000 0000 0000 0000                 ..........
+⚡	./pipex /dev/zero "head -c 10" "xxd" output.txt
+	00000000: 0000 0000 0000 0000 0000                 ..........
+
+
+🔥
+# Test with /dev/urandom
+./pipex /dev/urandom "head -c 10" "xxd" output.txt
+
+
+
+
+
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+⭐		MEMORY MANAGEMENT						⭐
+
+⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐	⭐
+
+🔥	Run with valgrind to check for leaks & access errors:
+
+See:
+HARDENING.md
+
+
+
+🔥	Run with address sanitizer
+
+make debug
+
+Set environment variables before execution

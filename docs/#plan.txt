@@ -1,0 +1,19 @@
+TBC at later date (during 2nd iteration of project, when I have time to learn about security hardening etc.)
+
+
+
+Would also be nice:
+- obj files in obj/ (like now) & executable bin: both within a build/ rather than in root
+- outfiles created in tests/, within an outfiles/
+
+
+
+
+Parsing module
+
+remove_quotes currently removes the first and last character if they're quotes, without considering:
+
+Different types of quotes (single vs double)
+Nested quotes
+Escaped quotes
+Unmatched quotes

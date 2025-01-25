@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/25 10:37:45 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 18:00:21 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,20 +28,23 @@ static int	init_command(t_command *cmd, char *raw_cmd)
 
 // Check if command exists and is executable in given directory
 // Returns heap-allocated full path if valid, NULL if not
-static char	*try_path_access(char *dir, char *cmd)
+char	*try_path_access(char *dir, char *cmd)
 {
 	char	*path_join;
 	char	*full_path;
-	char	*valid_path;
 
-	path_join = ft_strjoin(dir, "/");
-	full_path = ft_strjoin(path_join, cmd);
-	free(path_join);
-	if (access(full_path, F_OK | X_OK) == 0)
+	if (!dir)
+		full_path = ft_strdup(cmd);
+	else
 	{
-		valid_path = full_path;
-		return (valid_path);
+		path_join = ft_strjoin(dir, "/");
+		full_path = ft_strjoin(path_join, cmd);
+		free(path_join);
 	}
+	if (!full_path)
+		return (NULL);
+	if (access(full_path, F_OK | X_OK) == 0)
+		return (full_path);
 	free (full_path);
 	return (NULL);
 }
@@ -50,30 +53,18 @@ static char	*try_path_access(char *dir, char *cmd)
 // Returns heap-allocated path if found, else copy of original command
 static char	*find_command_path(char *cmd, char **envp)
 {
-	char	**paths;
 	char	*valid_path;
-	int		i;
 
-	i = 0;
-	while (envp[i] && ft_strncmp(envp[i], "PATH=", 5))
-		i++;
-	if (!envp[i])
-		return (ft_strdup(cmd));
-	paths = ft_split(envp[i] + 5, ':');
-	if (!paths)
-		return (ft_strdup(cmd));
-	i = 0;
-	while (paths[i])
+	if (ft_strchr(cmd, '/'))
 	{
-		valid_path = try_path_access(paths[i], cmd);
+		valid_path = try_path_access(NULL, cmd);
 		if (valid_path)
-		{
-			ft_free_array(paths);
 			return (valid_path);
-		}
-		i++;
+		return (ft_strdup(cmd));
 	}
-	ft_free_array(paths);
+	valid_path = search_path_dirs(cmd, envp);
+	if (valid_path)
+		return (valid_path);
 	return (ft_strdup(cmd));
 }
 

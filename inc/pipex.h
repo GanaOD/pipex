@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:18:14 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 15:58:44 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 18:03:08 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ typedef struct s_pipex
 // Command parsing and validation
 int		parse_commands(t_pipex *pipex);
 char	**split_with_quotes(const char *cmd);
+char	*search_path_dirs(char *cmd, char **envp);
+char	*try_path_access(char *dir, char *cmd);
 // Process handling
 void	handle_first_child(t_pipex *pipex);
 void	handle_second_child(t_pipex *pipex);

@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/24 11:31:51 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/25 11:38:29 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -55,9 +55,6 @@ DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer $(ASAN_FLAGS)
 # Debug flags with MSan (alternative)
 DEBUG_MSAN_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer $(MSAN_FLAGS)
 
-
-
-# "SIMPLE" DEBUG BUILD WITH -g ?? e.g. when just using valgrind ???
 
 
 # Include path flags for header file resolution:

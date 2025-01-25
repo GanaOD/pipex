@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/21 09:06:27 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/23 12:43:34 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/25 13:57:18 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -328,19 +328,13 @@ CONTINUE HERE WITH v2. (all previous tests are ok, not all of the following veri
 
 🔥	Run with valgrind to check for leaks & access errors:
 
-Replace "infile" with 
-
-# Basic test
-valgrind --leak-check=full --show-leak-kinds=all ./pipex infile "ls -l" "wc -l" outfile
-
-# Test with non-existent command
-valgrind --leak-check=full --show-leak-kinds=all ./pipex infile "nonexistent" "wc -l" outfile
-
-# Test with invalid files
-valgrind --leak-check=full --show-leak-kinds=all ./pipex nonexistent "ls" "wc" outfile
+See:
+HARDENING.md
 
 
 
 🔥	Run with address sanitizer
 
-# Compile with -fsanitize=address and test core functionality
+make debug
+
+Set environment variables before execution

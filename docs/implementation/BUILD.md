@@ -1,4 +1,4 @@
-BUILD INSTRUCTIONS
+GENERAL BUILD INSTRUCTIONS
 
 
 ## Command Parsing Implementation

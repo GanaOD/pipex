@@ -1,5 +1,8 @@
 # Build System Documentation
 
+build system specifics (Makefile structure, compiler flags, sanitization, etc.)
+
+
 ## Directory Structure
 
 The build system is organized around several key directories:

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 18:43:13 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 15:08:55 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 10:35:26 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ void	handle_first_child(t_pipex *pipex)
 		safe_close(pipex->infile);
 	safe_close(pipex->pipe[1]);
 	exit_code = execute_first_command(&pipex->cmd1, pipex->envp);
+	cleanup_pipex(pipex);
 	exit(exit_code);
 }
 

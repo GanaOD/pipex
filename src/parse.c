@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 14:42:21 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 10:37:45 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,10 @@ static int	parse_command(t_command *cmd, char **envp)
 		return (0);
 	cmd->args = split_with_quotes(cmd->raw_cmd);
 	if (!cmd->args || !cmd->args[0])
+	{
+		ft_free_array(cmd->args);
 		return (0);
+	}
 	cmd->path = find_command_path(cmd->args[0], envp);
 	if (!cmd->path)
 	{

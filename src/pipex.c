@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 12:04:43 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 16:23:30 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 10:34:57 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,10 @@ int	main(int argc, char **argv, char **envp)
 		return (error_handler("Invalid arguments"));
 	init_pipex(&pipex, argv, envp);
 	if (!parse_commands(&pipex))
+	{
+		cleanup_pipex(&pipex);
 		return (error_handler("Command parsing failed"));
+	}
 	if (!create_pipeline(&pipex))
 		return (error_handler("Pipeline creation failed"));
 	return (cleanup_and_exit(&pipex));

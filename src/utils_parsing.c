@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/18 12:26:07 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 15:52:04 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 11:03:17 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,24 @@ char	**split_with_quotes(const char *cmd)
 	char	**args;
 	int		i;
 
-	i = 0;
 	args = ft_split(cmd, ' ');
+	if (!args)
+		return (NULL);
+
+	i = 0;
 	while (args[i])
 	{
 		if (is_quote(args[i][0]))
+		{
 			args[i] = remove_quotes(args[i]);
+			if (!args[i])
+			{
+				while (i > 0)
+					free (args[--i]);
+				free (args);
+				return (NULL);
+			}
+		}
 		i++;
 	}
 	return (args);

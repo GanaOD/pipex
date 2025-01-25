@@ -6,7 +6,7 @@
 #    By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/01/14 17:52:51 by go-donne          #+#    #+#              #
-#    Updated: 2025/01/22 15:59:23 by go-donne         ###   ########.fr        #
+#    Updated: 2025/01/24 11:31:51 by go-donne         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,21 +35,29 @@ CC = cc
 # Compilation flags as required by subject
 CFLAGS = -Wall -Wextra -Werror
 
-# Extra debug flags
-DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer -fsanitize=address
 
-# -g3:		Maximum debug level. Includes:
-#			- All compiler debug information
-#			- Macro definitions and expansion
-#			- Full symbol information for debuggers (variables, functions, line numbers)
-#			- Maximum source code correlation
-# -DDEBUG:	Defines DEBUG macro for preprocessor
-#			- Enables code wrapped in #ifdef DEBUG conditional blocks
-# -fno-omit-frame-pointer:
-# 			- Maintains stack frame pointers in registers
-#			- Improves debugger stack traces and profiling accuracy
-# -fsanitize=address:
-#			- Enables AddressSanitizer (ASan)
+# Address Sanitizer (ASan) configuration
+ASAN_FLAGS = -fsanitize=address -fsanitize=undefined \
+             -fno-sanitize-recover=all \
+             -fsanitize=float-divide-by-zero \
+             -fsanitize=float-cast-overflow \
+             -fno-sanitize=null \
+             -fno-sanitize=alignment
+
+# Memory Sanitizer (MSan) configuration
+MSAN_FLAGS = -fsanitize=memory
+
+
+# Debug flags with ASan (default)
+DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer $(ASAN_FLAGS)
+
+
+# Debug flags with MSan (alternative)
+DEBUG_MSAN_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer $(MSAN_FLAGS)
+
+
+
+# "SIMPLE" DEBUG BUILD WITH -g ?? e.g. when just using valgrind ???
 
 
 # Include path flags for header file resolution:
@@ -72,17 +80,10 @@ SRC_FILES = pipex.c parse.c child.c execute.c \
 
 # Generate full paths
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC_FILES))
+
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
 OBJS_DEBUG = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%_debug.o)
-# Path and dependency resolution:
-#	- SRCS:	Constructs full source paths by prefixing SRC_DIR to each file
-#		Creates compilation unit list for build system
-#	- OBJS:	Maps .c source files to corresponding .o object files
-#		Preserves directory structure in build artifacts
-#		Each object file becomes a dependency node in build graph
-#	- OBJS_DEBUG:	Similar to OBJS but generates separate debug objects
-#			Allows parallel existence of debug and release builds
-#			Prevents object file collision between build types
 
 # Libft external library
 LIBFT = $(LIBFT_DIR)/libft.a
@@ -116,6 +117,10 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(INC_DIR)/pipex.h | $(OBJ_DIR)
 # Debug build
 debug: $(OBJ_DIR) $(NAME_DEBUG)
 
+# MSan debug build
+debug_msan: $(OBJ_DIR) $(NAME)_debug_msan
+
+
 # Debug program
 $(NAME_DEBUG): $(LIBFT) $(OBJS_DEBUG)
 	@echo "$(YELLOW)Linking debug build$(RESET)"
@@ -127,10 +132,24 @@ $(OBJ_DIR)/%_debug.o: $(SRC_DIR)/%.c $(INC_DIR)/pipex.h | $(OBJ_DIR)
 	@echo "$(CYAN)Compiling $< (debug)$(RESET)"
 	@$(CC) $(CFLAGS) $(DEBUG_FLAGS) $(INCLUDES) -c $< -o $@
 
+
+# MSan debug program
+$(NAME)_debug_msan: $(LIBFT) $(OBJS_DEBUG_MSAN)
+	@echo "$(YELLOW)Linking MSan debug build$(RESET)"
+	@$(CC) $(CFLAGS) $(DEBUG_MSAN_FLAGS) $(OBJS_DEBUG_MSAN) -L$(LIBFT_DIR) -lft -o $(NAME)_debug_msan
+	@echo "$(GREEN)MSan debug build complete!$(RESET)"
+
+# MSan debug objects
+$(OBJ_DIR)/%_debug_msan.o: $(SRC_DIR)/%.c $(INC_DIR)/pipex.h | $(OBJ_DIR)
+	@echo "$(CYAN)Compiling $< (MSan debug)$(RESET)"
+	@$(CC) $(CFLAGS) $(DEBUG_MSAN_FLAGS) $(INCLUDES) -c $< -o $@
+
+
 # Libft
 $(LIBFT):
 	@echo "$(YELLOW)Building libft$(RESET)"
 	@make -C $(LIBFT_DIR)
+
 
 
 
@@ -148,9 +167,13 @@ clean_debug:
 	@rm -rf $(OBJ_DIR)/*_debug.o
 	@echo "$(GREEN)Debug objects cleaned!$(RESET)"
 
+clean_debug_msan:
+	@rm -rf $(OBJ_DIR)/*_debug_msan.o
+	@echo "$(GREEN)MSan debug objects cleaned!$(RESET)"
+
 fclean: clean
 	@echo "$(RED)Removing executable...$(RESET)"
-	@rm -f $(NAME) $(NAME)_debug
+	@rm -f $(NAME) $(NAME)_debug $(NAME)_debug_msan
 	@make -C $(LIBFT_DIR) fclean
 	@echo "$(GREEN)All generated files cleaned!$(RESET)"
 
@@ -161,49 +184,8 @@ re:
 
 
 # Declare phony targets (that don't create files)
-.PHONY: all clean fclean re debug
-
-
-
-
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-#	COLOURED OUTPUT CONFIG		#
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-
-# Terminal output colors
-RED := $(shell tput setaf 1)
-GREEN := $(shell tput setaf 2)
-YELLOW := $(shell tput setaf 3)
-BLUE := $(shell tput setaf 4)
-CYAN := $(shell tput setaf 6)
-RESET := $(shell tput sgr0)
-BOLD := $(shell tput bold)
-
-# tput: terminal control command:
-#	setaf n sets the ANSI foreground color (text color)
-#	Numbers 1-6 correspond to different colours
-#	sgr0 resets all attributes back to default
-#	These commands output the actual ANSI escape sequences
-
-# RESET: returns terminal to normal
-
-# Colour scheme:
-# Blue:		directory creation
-# Cyan:		file compilation
-# Yellow:	process starts
-# Green:	success messages
-# Red:		cleaning operations
-
-
-
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-#		BUILD GUIDE				#
-#	⭐	⭐	⭐	⭐	⭐	⭐	⭐
-
-# Available build commands as defined in .PHONY
-
-# make or make all:	Default build
-# make debug:			Build with debug flags
-# make clean:			Remove object files
-# make fclean:		Remove objects and executables (full clean)
-# make re:			Rebuild from scratch (runs fclean then all)
+.PHONY: all \
+		clean clean_debug clean_debug_msan \
+		fclean \
+		re \
+		debug debug_msan

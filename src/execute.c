@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:40:24 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/22 15:41:08 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/25 10:46:14 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,10 @@ void	execute_second_command(t_command *cmd, char **envp)
 	if (!cmd || !cmd->path || !cmd->args)
 	{
 		ft_putendl_fd("pipex: invalid command structure", STDERR_FILENO);
+		cleanup_pipex((t_pipex *)cmd);
 		exit(1);
 	}
 	execve(cmd->path, cmd->args, envp);
+	cleanup_pipex((t_pipex *)cmd);
 	exit (handle_execution_error(cmd));
 }

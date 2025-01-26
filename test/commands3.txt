@@ -1,0 +1,71 @@
+Strategic approach to quickly find potential issues using the sanitizer build:
+
+
+INTEGRATE INTO OTHER COMMANDS DOCS, incl. debug runs
+
+
+
+First, let's test error cases that are most likely to expose memory and undefined behavior issues:
+
+# Build with full sanitizer coverage
+make debug DEBUG_FLAGS="-fsanitize=address -g3 -DDEBUG -fno-omit-frame-pointer -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment"
+
+
+
+# Key test cases to run:
+Looking at your test/commands.txt, here are the high-risk scenarios to test first:
+
+
+
+
+🔥
+Memory management stress tests:
+
+🔥🔥🔥
+# Rapid file open/close with nonexistent files
+./pipex_debug nonexistent "cat" "wc" output.txt
+
+🔥🔥🔥
+# Quick succession of commands that fail
+./pipex_debug test/infiles/single_line.txt "nonexistent1" "nonexistent2" output.txt
+
+🔥🔥🔥
+# Handle empty/invalid commands
+🌿	< infile "" | wc > output
+
+🐚	zsh: permission denied:
+
+⚡	./pipex_debug test/infiles/single_line.txt "" "wc" output.txt
+	pipex: permission denied:
+
+
+
+File descriptor edge cases:
+
+# Special files that could cause buffer issues
+./pipex_debug /dev/zero "head -c 1000000" "wc" output.txt
+./pipex_debug /dev/urandom "head -c 1000000" "xxd" output.txt
+
+# Permissions issues that could lead to partial cleanup
+mkdir -p test/readonly && chmod 444 test/readonly
+./pipex_debug test/infiles/single_line.txt "cat" "wc" test/readonly/output.txt
+
+
+
+Command parsing edge cases:
+
+# Quotes and spaces that could cause buffer overflows
+./pipex_debug test/infiles/single_line.txt "echo '   '" "cat" output.txt
+./pipex_debug test/infiles/single_line.txt "echo \"   \"" "cat" output.txt
+
+# Very long commands that might overflow buffers
+./pipex_debug test/infiles/single_line.txt "cat aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" "wc" output.txt
+
+
+
+Process management stress:
+
+# Quick succession of failing processes
+for i in {1..10}; do
+    ./pipex_debug test/infiles/single_line.txt "cat" "nonexistent$i" output.txt
+done

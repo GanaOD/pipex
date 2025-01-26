@@ -1,3 +1,39 @@
+
+UPDATE
+
+# "Basic" debug configuration
+debug_basic: CFLAGS += -g
+
+
+# Address Sanitizer (ASan) configuration
+ASAN_FLAGS = -fsanitize=address -fsanitize=undefined \
+             -fno-sanitize-recover=all \
+             -fsanitize=float-divide-by-zero \
+             -fsanitize=float-cast-overflow \
+             -fno-sanitize=null \
+             -fno-sanitize=alignment
+
+# Memory Sanitizer (MSan) configuration
+MSAN_FLAGS = -fsanitize=memory
+
+
+# Debug flags with ASan (default)
+DEBUG_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer $(ASAN_FLAGS)
+
+
+# Debug flags with MSan (alternative)
+DEBUG_MSAN_FLAGS = -g3 -DDEBUG -fno-omit-frame-pointer $(MSAN_FLAGS)
+
+
+
+
+
+
+
+
+
+
+
 # Build System Documentation
 
 build system specifics (Makefile structure, compiler flags, sanitization, etc.)

@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/14 17:40:24 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/25 10:46:14 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/26 09:45:46 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,12 +52,14 @@ static int	get_specific_error_code(char *cmd_name)
 static int	handle_execution_error(t_command *cmd)
 {
 	char	*cmd_name;
+	int		error_code;
 
 	cmd_name = NULL;
 	if (cmd && cmd->args && cmd->args[0])
 		cmd_name = cmd->args[0];
-	if (get_specific_error_code(cmd_name) != -1)
-		return (get_specific_error_code(cmd_name));
+	error_code = get_specific_error_code(cmd_name);
+	if (error_code != -1)
+		return (error_code);
 	perror("");
 	return (1);
 }
@@ -77,10 +79,8 @@ void	execute_second_command(t_command *cmd, char **envp)
 	if (!cmd || !cmd->path || !cmd->args)
 	{
 		ft_putendl_fd("pipex: invalid command structure", STDERR_FILENO);
-		cleanup_pipex((t_pipex *)cmd);
 		exit(1);
 	}
 	execve(cmd->path, cmd->args, envp);
-	cleanup_pipex((t_pipex *)cmd);
 	exit (handle_execution_error(cmd));
 }

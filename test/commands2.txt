@@ -52,6 +52,7 @@ Text Processing Commands:
 Character-level manipulation and substitution
 
 see both upper/lowercase AND replace other characters with %
+
 ./pipex test/infiles/single_line.txt "tr -c 'HhEe' %" "cat" outfile
 	For input "Alone he moved watched by the infinity", this would:
 		Keep both 'h' and 'e' (upper and lowercase)

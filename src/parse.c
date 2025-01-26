@@ -6,7 +6,7 @@
 /*   By: go-donne <go-donne@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 12:21:44 by go-donne          #+#    #+#             */
-/*   Updated: 2025/01/26 11:56:43 by go-donne         ###   ########.fr       */
+/*   Updated: 2025/01/26 12:01:27 by go-donne         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ static int	parse_command(t_command *cmd, char **envp)
 {
 	if (!cmd || !cmd->raw_cmd)
 		return (0);
-	if (!*cmd->raw_cmd)
+	if (cmd->raw_cmd[0] == '\0')
 	{
 		ft_putstr_fd("pipex: permission denied: ", 2);
 		ft_putendl_fd("", 2);

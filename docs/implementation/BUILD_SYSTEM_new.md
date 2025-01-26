@@ -84,6 +84,10 @@ valgrind --leak-check=full \
          ./pipex_debug [args]
 ```
 
+valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --verbose
+
+
+
 Cache and branch prediction analysis:
 ```bash
 valgrind --tool=cachegrind \

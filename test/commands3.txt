@@ -40,15 +40,35 @@ Memory management stress tests:
 
 
 
+🔥
 File descriptor edge cases:
 
+🔥🔥
 # Special files that could cause buffer issues
+
+🔥🔥🔥
 ./pipex_debug /dev/zero "head -c 1000000" "wc" output.txt
+🌿	% < /dev/zero head -c 1000000 | wc > outfile
+🐚	% cat outfile
+       0       1 1000000
+
+
+🔥🔥🔥
 ./pipex_debug /dev/urandom "head -c 1000000" "xxd" output.txt
+
+
+
+🔥🔥
 
 # Permissions issues that could lead to partial cleanup
 mkdir -p test/readonly && chmod 444 test/readonly
-./pipex_debug test/infiles/single_line.txt "cat" "wc" test/readonly/output.txt
+
+🌿	< infile cat | wc > test/readonly
+🐚	zsh: permission denied: readonly/outfile
+
+⚡	./pipex_debug test/infiles/single_line.txt "cat" "wc" test/readonly/output.txt
+
+
 
 
 
